@@ -88,24 +88,24 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 ## Phase 4: Homepage & Public Modules (Mandatory: 4 Sections)
 
 ### 4.1 Hero Section
-- [ ] Design a high-impact Hero with "Find Tutors" CTA.
-- [ ] Animated elements or search bar integration.
+- [x] Design a high-impact Hero with "Find Tutors" CTA.
+- [x] Animated elements or search bar integration.
 
 ### 4.2 Featured Tutors Section
 - [x] Service: `tutor.service.ts` -> `getFeaturedTutors()`.
-- [ ] Component: Grid of `TutorCard`.
+- [x] Component: Grid of `TutorCard`.
 
 ### 4.3 Categories Section
 - [x] Service: `category.service.ts` -> `getAllCategories()`.
-- [ ] Component: Visual grid/list of categories.
+- [x] Component: Visual grid/list of categories.
 
 ### 4.4 Testimonial/Trust Section
-- [ ] "How it works" or "Student Reviews" section to build trust.
+- [x] "How it works" or "Student Reviews" section to build trust.
 
 ### 4.5 Tutor Listing Page (`/tutors`)
-- [ ] Filter Sidebar (Category, Price, Rating).
-- [ ] Search Functionality.
-- [ ] Pagination/Infinite Scroll (via TanStack Query).
+- [x] Filter Sidebar (Category, Price, Rating).
+- [x] Search Functionality.
+- [x] Pagination/Infinite Scroll (Simple Native Fetch implemented).
 
 ---
 

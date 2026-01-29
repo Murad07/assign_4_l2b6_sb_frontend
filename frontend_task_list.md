@@ -10,7 +10,7 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 **Tech Stack:**
 *   **Framework:** Next.js (App Router, Layouts)
 *   **Styling:** Tailwind CSS, Shadcn UI
-*   **State/Data:** TanStack Query, TanStack Form
+*   **State/Data:** Native Fetch (Server Components), Server Actions (Mutations), TanStack Form
 *   **Auth:** Better Auth (Session-based cookies)
 *   **Validation:** Zod
 *   **Language:** TypeScript
@@ -29,59 +29,59 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 ## Phase 1: Project Setup & Architecture
 
 ### 1.1 Initialization
-- [ ] Initialize Next.js project with TypeScript.
-- [ ] Configure Tailwind CSS & `tailwind.config.ts`.
-- [ ] Set up absolute imports (`@/` -> `./src/`).
-- [ ] Initialize Shadcn UI & configure `components.json`.
-- [ ] **Structure Setup**: Create `actions`, `services`, `components/{ui,layout,modules}`, `types`, `lib`, `hooks` directories.
+- [x] Initialize Next.js project with TypeScript.
+- [x] Configure Tailwind CSS & `tailwind.config.ts`.
+- [x] Set up absolute imports (`@/` -> `./src/`).
+- [x] Initialize Shadcn UI & configure `components.json`.
+- [x] **Structure Setup**: Create `actions`, `services`, `components/{ui,layout,modules}`, `types`, `lib`, `hooks` directories.
 
 ### 1.2 Core Integration
-- [ ] Install & Setup **TanStack Query** (`QueryClientProvider`).
-- [ ] Install **Better Auth** & set up client wrapper.
-- [ ] Install **Lucide React** & **Zod**.
-- [ ] Setup `src/lib/api-client.ts` or base fetch wrapper for usage in Services.
+- [x] **Native Fetch**: Use standard `fetch` in Service layer.
+- [x] Install **Better Auth** & set up client wrapper.
+- [x] Install **Lucide React** & **Zod**.
+- [x] Remove `api-client.ts` (Axios) in favor of `fetch` wrapper or direct usage.
 
 ### 1.3 Global UI Components
-- [ ] Install/Create base Shadcn components: Button, Input, Card, Dialog, Toast, Form, DropdownMenu.
-- [ ] Define **Theme/Colors** in globals.css for consistency.
+- [x] Install/Create base Shadcn components: Button, Input, Card, Dialog, Toast, Form, DropdownMenu.
+- [x] Define **Theme/Colors** in globals.css for consistency.
 
 ---
 
 ## Phase 2: Layouts & Navigation
 
 ### 2.1 Common Layout (`app/(commonLayout)`)
-- [ ] Create `Navbar` Component:
-    - [ ] Logo, Navigation Links, Auth Buttons/User Menu.
-    - [ ] Responsive design (mobile menu).
-- [ ] Create `Footer` Component:
-    - [ ] Links, Copyright, Socials.
-- [ ] Implement `layout.tsx` for common public pages.
+- [x] Create `Navbar` Component:
+    - [x] Logo, Navigation Links, Auth Buttons/User Menu.
+    - [x] Responsive design (mobile menu).
+- [x] Create `Footer` Component:
+    - [x] Links, Copyright, Socials.
+- [x] Implement `layout.tsx` for common public pages.
 
 ### 2.2 Dashboard Layout (`app/(dashboardLayout)`)
-- [ ] Create `Sidebar` Component:
-    - [ ] Dynamic links based on Role (Student/Tutor/Admin).
-- [ ] Create `DashboardHeader` Component.
-- [ ] Implement `layout.tsx` for protected routes.
+- [x] Create `Sidebar` Component:
+    - [x] Dynamic links based on Role (Student/Tutor/Admin).
+- [x] Create `DashboardHeader` Component.
+- [x] Implement `layout.tsx` for protected routes.
 
 ---
 
 ## Phase 3: Authentication (Server Actions + Zod)
 
 ### 3.1 Auth Actions (`src/actions/auth.ts`)
-- [ ] `loginUser(data)`: Server action handling login via Better Auth.
-- [ ] `registerUser(data)`: Server action for registration.
+- [x] `loginUser(data)`: Server action handling login via Better Auth.
+- [x] `registerUser(data)`: Server action for registration.
 
 ### 3.2 Auth Forms (`src/components/modules/auth`)
-- [ ] **Login Form**: 
-    - [ ] Zod Schema Validation.
-    - [ ] Integration with `loginUser` action.
-- [ ] **Register Form**:
-    - [ ] Zod Schema (including Role selection).
-    - [ ] Integration with `registerUser` action.
+- [x] **Login Form**: 
+    - [x] Zod Schema Validation.
+    - [x] Integration with `loginUser` action.
+- [x] **Register Form**:
+    - [x] Zod Schema (including Role selection).
+    - [x] Integration with `registerUser` action.
 
 ### 3.3 Auth Pages
-- [ ] `/login`: Renders Login Form.
-- [ ] `/register`: Renders Register Form.
+- [x] `/login`: Renders Login Form.
+- [x] `/register`: Renders Register Form.
 
 ---
 
@@ -92,11 +92,11 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 - [ ] Animated elements or search bar integration.
 
 ### 4.2 Featured Tutors Section
-- [ ] Service: `tutor.service.ts` -> `getFeaturedTutors()`.
+- [x] Service: `tutor.service.ts` -> `getFeaturedTutors()`.
 - [ ] Component: Grid of `TutorCard`.
 
 ### 4.3 Categories Section
-- [ ] Service: `category.service.ts` -> `getAllCategories()`.
+- [x] Service: `category.service.ts` -> `getAllCategories()`.
 - [ ] Component: Visual grid/list of categories.
 
 ### 4.4 Testimonial/Trust Section

@@ -38,7 +38,9 @@ export async function loginUser(data: any) {
             });
         }
 
-        return { success: true, data: result.data };
+        console.log("Login response result:", result);
+
+        return { success: true, data: result.user };
     } catch (error: any) {
         return {
             success: false,

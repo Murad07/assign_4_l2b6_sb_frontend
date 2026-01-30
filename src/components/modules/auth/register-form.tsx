@@ -34,7 +34,7 @@ const formSchema = z.object({
     password: z.string().min(6, {
         message: "Password must be at least 6 characters.",
     }),
-    role: z.enum(["student", "tutor"]),
+    role: z.enum(["Student", "Tutor"]),
 });
 
 export default function RegisterForm() {
@@ -45,21 +45,25 @@ export default function RegisterForm() {
             name: "",
             email: "",
             password: "",
-            role: "student",
+            role: "Student",
         },
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log("Submitting registration with values:", values);
         try {
             const res = await registerUser(values);
+            console.log("Registration result:", res);
+
             if (res.success) {
-                toast.success("Account created! Please login.");
-                router.push("/login");
+                toast.success("Account created successfully! Welcome to SkillBridge!");
+                router.push("/");
             } else {
-                toast.error(res.error);
+                toast.error(res.error || "Registration failed. Please try again.");
             }
         } catch (error) {
-            toast.error("Something went wrong.");
+            console.error("Registration form error:", error);
+            toast.error("Something went wrong. Please try again.");
         }
     }
 
@@ -123,8 +127,8 @@ export default function RegisterForm() {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="student">Learn (Student)</SelectItem>
-                                    <SelectItem value="tutor">Teach (Tutor)</SelectItem>
+                                    <SelectItem value="Student">Learn (Student)</SelectItem>
+                                    <SelectItem value="Tutor">Teach (Tutor)</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />

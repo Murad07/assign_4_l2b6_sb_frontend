@@ -11,6 +11,7 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": "http://localhost:5000"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -39,10 +40,11 @@ export async function loginUser(data: any) {
 
 export async function registerUser(data: any) {
     try {
-        const res = await fetch(`${API_URL}/auth/register`, {
+        const res = await fetch(`${API_URL}/auth/sign-up/email`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": "http://localhost:5000"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -50,18 +52,35 @@ export async function registerUser(data: any) {
 
         const result = await res.json();
 
+        console.log("Registration response:", { status: res.status, ok: res.ok, result });
+
         if (!res.ok) {
+            // Extract error message from various possible API response formats
+            const errorMessage =
+                result.message ||
+                result.error?.message ||
+                result.errors?.[0]?.message ||
+                (typeof result.error === 'string' ? result.error : null) ||
+                "Registration failed";
+
             return {
                 success: false,
-                error: result.message || "Registration failed"
+                error: errorMessage
             };
         }
 
-        return { success: true, data: result.data };
+        // Success response contains { token, user }
+        return {
+            success: true,
+            data: result,
+            token: result.token,
+            user: result.user
+        };
     } catch (error: any) {
+        console.error("Registration error:", error);
         return {
             success: false,
-            error: error.message || "Registration failed"
+            error: error.message || "Network error. Please try again."
         };
     }
 }

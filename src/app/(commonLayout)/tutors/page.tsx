@@ -2,21 +2,15 @@ import { TutorCard } from "@/components/modules/tutor/tutor-card";
 import { TutorService } from "@/services/tutor.service";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Tutor } from "@/types";
 
 export default async function TutorsPage() {
-    let tutors = [];
+    let tutors: Tutor[] = [];
     try {
         const res = await TutorService.getAllTutors();
         tutors = res.data || [];
     } catch (error) {
         console.error("Failed to fetch tutors", error);
-        // Fallback/Sample data for development visualization if API is not ready
-        tutors = [
-            { id: "1", name: "Alice Johnson", bio: "Experienced Math Tutor", hourlyRate: 30, skills: ["Math", "Algebra", "Calculus"], rating: 4.8 },
-            { id: "2", name: "Bob Smith", bio: "Native Spanish Speaker", hourlyRate: 25, skills: ["Spanish", "Language"], rating: 4.5 },
-            { id: "3", name: "Charlie Brown", bio: "React & Nodejs Expert", hourlyRate: 50, skills: ["React", "Node.js", "TypeScript"], rating: 5.0 },
-            { id: "4", name: "Diana Prince", bio: "History and Social Studies", hourlyRate: 20, skills: ["History", "Geography"], rating: 4.7 },
-        ];
     }
 
     return (
@@ -35,7 +29,7 @@ export default async function TutorsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tutors.length > 0 ? (
-                    tutors.map((tutor: any) => (
+                    tutors.map((tutor) => (
                         <TutorCard key={tutor.id} tutor={tutor} />
                     ))
                 ) : (

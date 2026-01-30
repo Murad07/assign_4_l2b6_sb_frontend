@@ -1,17 +1,26 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TutorService } from "@/services/tutor.service";
+import { CategoryService } from "@/services/category.service";
 import { TutorCard } from "@/components/modules/tutor/tutor-card";
-import { Tutor } from "@/types";
+import { Tutor, Category } from "@/types";
 
 export default async function Home() {
   let featuredTutors: Tutor[] = [];
+  let categories: Category[] = [];
 
   try {
     const res = await TutorService.getFeaturedTutors();
     featuredTutors = res.data || [];
   } catch (error) {
     console.error("Failed to fetch featured tutors", error);
+  }
+
+  try {
+    const res = await CategoryService.getAllCategories();
+    categories = res.data || [];
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
   }
 
   return (
@@ -39,14 +48,27 @@ export default async function Home() {
           <h2 className="text-3xl font-bold">Explore Categories</h2>
           <Link href="/tutors" className="text-primary hover:underline">View All</Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Placeholders for Categories - will pull from API later */}
-          {['Programming', 'Languages', 'Design', 'Music'].map((cat) => (
-            <div key={cat} className="p-6 border rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-card text-center">
-              <span className="font-semibold text-lg">{cat}</span>
-            </div>
-          ))}
-        </div>
+        {categories.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/tutors?category=${category.id}`}
+                className="p-6 border rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-card text-center space-y-2"
+              >
+                <div className="text-4xl">{category.icon}</div>
+                <span className="font-semibold text-lg block">{category.name}</span>
+                {category.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{category.description}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            No categories available at the moment.
+          </div>
+        )}
       </section>
 
       {/* 3. Featured Tutors Section */}

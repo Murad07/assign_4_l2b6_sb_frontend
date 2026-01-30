@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { authClient } from "@/lib/auth-client";
+import { User } from "@/types";
 
-export default function Sidebar() {
+export default function Sidebar({ user }: { user?: User | null }) {
     const pathname = usePathname();
-    const { data: session } = authClient.useSession();
-    const userRole = session?.user?.role;
+    // const { data: session } = authClient.useSession();
+    console.log("Sidebar user:", user);
+    const userRole = user?.role;
 
     const studentLinks = [
         { name: "Dashboard", href: "/dashboard" },

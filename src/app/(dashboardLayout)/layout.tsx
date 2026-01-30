@@ -1,13 +1,16 @@
 import Sidebar from "@/components/layout/Sidebar";
+import { AuthService } from "@/services/auth.service";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const user = await AuthService.getCurrentUser();
+
     return (
         <div className="flex min-h-screen">
-            <Sidebar />
+            <Sidebar user={user} />
             <main className="flex-1 p-8">
                 <header className="mb-8 flex justify-between items-center">
                     <h1 className="text-2xl font-bold">Dashboard</h1>

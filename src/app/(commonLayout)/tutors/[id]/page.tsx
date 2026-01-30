@@ -6,6 +6,7 @@ import { Star, MapPin, Clock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Tutor } from "@/types";
+import BookingModal from "@/components/modules/booking/booking-modal";
 
 interface TutorDetailsPageProps {
     params: Promise<{ id: string }>;
@@ -79,7 +80,11 @@ export default async function TutorDetailsPage({ params }: TutorDetailsPageProps
                             <Clock className="h-4 w-4" />
                             <span>Response time: ~1 hr</span>
                         </div>
-                        <Button size="lg" className="w-full">Book Session</Button>
+                        <BookingModal
+                            tutorId={tutor.id}
+                            hourlyRate={tutor.hourlyRate}
+                            availability={tutor.availability || []}
+                        />
                         <p className="text-xs text-center text-muted-foreground">No charges until you confirm.</p>
                     </div>
                 </div>

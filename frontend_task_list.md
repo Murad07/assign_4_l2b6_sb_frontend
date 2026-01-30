@@ -63,6 +63,10 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 - [x] Create `DashboardHeader` Component.
 - [x] Implement `layout.tsx` for protected routes.
 
+### 2.3 Navigation & Auth State
+- [x] Implement Logout functionality (Server Action + Client).
+- [x] Update Navbar to show Login/Register OR Dashboard/Logout based on session.
+
 ---
 
 ## Phase 3: Authentication (Server Actions + Zod)
@@ -117,13 +121,13 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 ## Phase 5: Student Features (Dashboard)
 
 ### 5.1 Booking System
-- [ ] **Action**: `createBooking(data)` in `src/actions/booking.ts`.
-- [ ] **Validation**: Zod schema for booking dates/slots.
-- [ ] **UI**: Calendar/Time-slot picker on Tutor Details page.
+- [x] **Action**: `createBooking(data)` in `src/actions/booking.ts`.
+- [x] **Validation**: Zod schema for booking dates/slots.
+- [x] **UI**: Calendar/Time-slot picker on Tutor Details page.
 
 ### 5.2 My Bookings
-- [ ] Service: `booking.service.ts` -> `getUserBookings()`.
-- [ ] UI: List of bookings with status (Pending, Confirmed).
+- [x] Service: `booking.service.ts` -> `getUserBookings()`.
+- [x] UI: List of bookings with status (Pending, Confirmed).
 
 ---
 

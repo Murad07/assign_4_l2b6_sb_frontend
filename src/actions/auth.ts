@@ -30,7 +30,10 @@ export async function loginUser(data: any) {
         // In a real Better Auth + Backend setup, we might need to forward Set-Cookie headers
         const setCookie = res.headers.get("Set-Cookie");
         if (setCookie) {
-            (await cookies()).set("better-auth.session-token", result.token, {
+            const parsedToken = setCookie.match(/better-auth\.session_token=([^;]+)/)?.[1];
+            const tokenToUse = parsedToken || result.token;
+
+            (await cookies()).set("better-auth.session_token", tokenToUse, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
@@ -94,4 +97,8 @@ export async function registerUser(data: any) {
             error: error.message || "Network error. Please try again."
         };
     }
+}
+
+export async function logoutUser() {
+    (await cookies()).delete("better-auth.session_token");
 }

@@ -28,7 +28,15 @@ export async function loginUser(data: any) {
         }
 
         // In a real Better Auth + Backend setup, we might need to forward Set-Cookie headers
-        // For now, assuming standard flow
+        const setCookie = res.headers.get("Set-Cookie");
+        if (setCookie) {
+            (await cookies()).set("better-auth.session-token", result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+            });
+        }
 
         return { success: true, data: result.data };
     } catch (error: any) {

@@ -14,9 +14,12 @@ export interface User {
     id: string;
     name: string;
     email: string;
+    role: "Student" | "Tutor" | "Admin";
+    emailVerified?: boolean;
     image: string | null;
-    phone: string | null;
+    phone?: string | null;
     createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface Tutor {

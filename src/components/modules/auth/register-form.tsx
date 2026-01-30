@@ -57,7 +57,15 @@ export default function RegisterForm() {
 
             if (res.success) {
                 toast.success("Account created successfully! Welcome to SkillBridge!");
-                router.push("/");
+
+                const user = res.data;
+                if (user?.role === "Student") {
+                    router.push("/dashboard");
+                } else if (user?.role === "Tutor") {
+                    router.push("/tutor/dashboard");
+                } else {
+                    router.push("/");
+                }
             } else {
                 toast.error(res.error || "Registration failed. Please try again.");
             }

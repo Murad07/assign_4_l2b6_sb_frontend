@@ -41,7 +41,17 @@ export default function LoginForm() {
             const res = await loginUser(values);
             if (res.success) {
                 toast.success("Logged in successfully!");
-                router.push("/dashboard");
+
+                const user = res.data;
+                if (user?.role === "Student") {
+                    router.push("/dashboard");
+                } else if (user?.role === "Tutor") {
+                    router.push("/tutor/dashboard");
+                } else if (user?.role === "Admin") {
+                    router.push("/admin");
+                } else {
+                    router.push("/"); // Fallback
+                }
             } else {
                 toast.error(res.error);
             }

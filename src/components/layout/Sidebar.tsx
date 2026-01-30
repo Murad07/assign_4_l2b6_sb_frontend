@@ -4,15 +4,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+import { authClient } from "@/lib/auth-client";
+
 export default function Sidebar() {
     const pathname = usePathname();
+    const { data: session } = authClient.useSession();
+    const userRole = session?.user?.role;
 
-    // TODO: Dynamic links based on Auth Role
-    const sidebarLinks = [
+    const studentLinks = [
         { name: "Dashboard", href: "/dashboard" },
         { name: "My Bookings", href: "/dashboard/bookings" },
         { name: "Profile", href: "/dashboard/profile" },
     ];
+
+    const tutorLinks = [
+        { name: "Dashboard", href: "/tutor/dashboard" },
+        { name: "Availability", href: "/tutor/availability" },
+        { name: "Profile", href: "/tutor/profile" },
+    ];
+
+    const adminLinks = [
+        { name: "Dashboard", href: "/admin" },
+        { name: "Users", href: "/admin/users" },
+        { name: "Bookings", href: "/admin/bookings" },
+        { name: "Categories", href: "/admin/categories" },
+    ];
+
+    let sidebarLinks = studentLinks; // Default to student
+    if (userRole === "Tutor") sidebarLinks = tutorLinks;
+    if (userRole === "Admin") sidebarLinks = adminLinks;
 
     return (
         <aside className="w-64 border-r bg-muted/10 hidden md:block min-h-screen p-6">

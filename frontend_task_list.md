@@ -83,6 +83,11 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 - [x] `/login`: Renders Login Form.
 - [x] `/register`: Renders Register Form.
 
+### 3.4 Role-Based Dashboard Redirection Pages
+- [x] Student Dashboard: `/dashboard` (Overview & stats).
+- [x] Tutor Dashboard: `/tutor/dashboard` (Stats & sessions).
+- [x] Admin Dashboard: `/admin` (Platform overview).
+
 ---
 
 ## Phase 4: Homepage & Public Modules (Mandatory: 4 Sections)

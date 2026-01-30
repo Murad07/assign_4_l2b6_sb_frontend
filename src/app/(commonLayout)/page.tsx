@@ -1,7 +1,19 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { TutorService } from "@/services/tutor.service";
+import { TutorCard } from "@/components/modules/tutor/tutor-card";
+import { Tutor } from "@/types";
 
-export default function Home() {
+export default async function Home() {
+  let featuredTutors: Tutor[] = [];
+
+  try {
+    const res = await TutorService.getFeaturedTutors();
+    featuredTutors = res.data || [];
+  } catch (error) {
+    console.error("Failed to fetch featured tutors", error);
+  }
+
   return (
     <div className="flex flex-col gap-16 pb-10">
       {/* 1. Hero Section */}
@@ -43,23 +55,17 @@ export default function Home() {
           <h2 className="text-3xl font-bold">Featured Tutors</h2>
           <Link href="/tutors" className="text-primary hover:underline">View All</Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Placeholders for Tutors */}
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="border rounded-xl p-6 bg-card space-y-4">
-              <div className="h-12 w-12 bg-muted rounded-full"></div>
-              <div>
-                <h3 className="font-bold text-lg">Jane Doe</h3>
-                <p className="text-sm text-muted-foreground">Expert Web Developer</p>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-semibold">$25/hr</span>
-                <span className="text-yellow-500">★ 4.9</span>
-              </div>
-              <Button className="w-full">View Profile</Button>
-            </div>
-          ))}
-        </div>
+        {featuredTutors.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredTutors.map((tutor) => (
+              <TutorCard key={tutor.id} tutor={tutor} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            No featured tutors available at the moment.
+          </div>
+        )}
       </section>
 
       {/* 4. Testimonials/Trust Section */}

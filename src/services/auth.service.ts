@@ -54,7 +54,6 @@ export const AuthService = {
 
     getCurrentUser: async function (): Promise<User | null> {
         const { data } = await this.getSession();
-        console.log("Current User:", data);
         return data?.data || null;
     }
 };

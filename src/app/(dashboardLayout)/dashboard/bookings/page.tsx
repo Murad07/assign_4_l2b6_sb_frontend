@@ -2,6 +2,7 @@ import { BookingService } from "@/services/booking.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
+import ReviewModal from "@/components/modules/review/ReviewModal";
 
 export default async function MyBookingsPage() {
     let bookings = [];
@@ -59,6 +60,9 @@ export default async function MyBookingsPage() {
                                         </span>
                                     </div>
                                     {/* Action buttons (Reschedule/Cancel) could go here */}
+                                    {booking.status === "COMPLETED" && (
+                                        <ReviewModal bookingId={booking.id} tutorId={booking.tutorId} />
+                                    )}
                                 </CardContent>
                             </Card>
                         );

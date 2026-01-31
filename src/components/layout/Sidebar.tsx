@@ -4,13 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-import { authClient } from "@/lib/auth-client";
 import { User } from "@/types";
 
 export default function Sidebar({ user }: { user?: User | null }) {
     const pathname = usePathname();
-    // const { data: session } = authClient.useSession();
-    console.log("Sidebar user:", user);
     const userRole = user?.role;
 
     const studentLinks = [

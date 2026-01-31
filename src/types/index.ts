@@ -51,6 +51,16 @@ export interface Pagination {
     totalPages: number;
 }
 
+export interface Review {
+    id: string;
+    studentId: string;
+    tutorId: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    student?: User;
+}
+
 export interface ApiResponse<T> {
     data: T;
     pagination?: Pagination;

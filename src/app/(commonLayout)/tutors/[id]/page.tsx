@@ -105,13 +105,61 @@ export default async function TutorDetailsPage({ params }: TutorDetailsPageProps
                 </div>
             </div>
 
-            {/* Reviews Section Placeholder */}
+            {/* Reviews Section */}
             <div className="space-y-6">
                 <h2 className="text-2xl font-bold">Student Reviews</h2>
-                <div className="bg-muted/30 p-8 rounded-lg text-center text-muted-foreground">
-                    Reviews will be displayed here.
-                </div>
+                <ReviewList tutorId={tutor.userId} />
             </div>
+        </div>
+    );
+}
+
+
+async function ReviewList({ tutorId }: { tutorId: string }) {
+    const { ReviewService } = await import("@/services/review.service");
+    let reviews: any[] = [];
+    try {
+        const res = await ReviewService.getTutorReviews(tutorId);
+        reviews = res.data || [];
+    } catch (e) {
+        console.error("Failed to fetch reviews");
+    }
+
+    if (reviews.length === 0) {
+        return (
+            <div className="bg-muted/30 p-8 rounded-lg text-center text-muted-foreground">
+                No reviews yet. Be the first to review!
+            </div>
+        );
+    }
+
+    return (
+        <div className="grid gap-4">
+            {reviews.map((review: any) => (
+                <div key={review.id} className="border rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={review.student?.image} />
+                            <AvatarFallback>{review.student?.name?.charAt(0) || "S"}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="font-semibold text-sm">{review.student?.name || "Student"}</p>
+                            <div className="flex gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={`h-3 w-3 ${i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-gray-300"}`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <span className="ml-auto text-xs text-muted-foreground">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                    </div>
+                    <p className="text-muted-foreground text-sm">{review.comment}</p>
+                </div>
+            ))}
         </div>
     );
 }

@@ -57,7 +57,7 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 - [ ] **4.6 Tutor Details Page** (`/tutors/[id]`):
     - [x] Profile Info (Bio, Skills, Rates).
     - [x] Booking Modal Integration.
-    - [ ] **Display Reviews**: List student reviews for this tutor.
+    - [x] **Display Reviews**: List student reviews for this tutor.
 
 ---
 
@@ -69,9 +69,9 @@ This document outlines the step-by-step plan to build the frontend for the Skill
     - [x] List user bookings with status labels.
 - [x] **5.3 Student Profile** (`/dashboard/profile`):
     - [x] Create Profile Form via `updateStudentProfile` action.
-- [ ] **5.4 Reviews System**:
-    - [ ] `createReview` Server Action.
-    - [ ] UI to leave a review for completed sessions.
+- [x] **5.4 Reviews System**:
+    - [x] `createReview` Server Action.
+    - [x] UI to leave a review for completed sessions.
 
 ---
 

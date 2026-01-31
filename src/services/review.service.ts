@@ -1,29 +1,31 @@
+
 import { cookies } from "next/headers";
+import { ApiResponse, Review } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-export const BookingService = {
-    getUserBookings: async () => {
+export const ReviewService = {
+
+    getTutorReviews: async (tutorId: string): Promise<ApiResponse<Review[]>> => {
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");
         const token = tokenCookie?.value;
 
-        if (!token) {
-            throw new Error("Unauthorized");
-        }
-
-        const res = await fetch(`${API_URL}/bookings`, { // Verify endpoint. api_response says GET /api/bookings gets user's bookings.
+        const res = await fetch(`${API_URL}/reviews/${tutorId}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "Origin": "http://localhost:5000",
                 Cookie: `${tokenCookie?.name}=${token}`,
             },
             cache: "no-store",
         });
 
+        // console.log('Review response:', res);
         if (!res.ok) {
-            throw new Error("Failed to fetch bookings");
+            return { data: [], success: false, message: "Failed to fetch" };
         }
-
         return res.json();
     },
+
+
 };

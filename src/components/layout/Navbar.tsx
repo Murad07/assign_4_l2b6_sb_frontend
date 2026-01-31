@@ -22,10 +22,6 @@ import { User } from "@/types";
 export default function Navbar({ user }: { user?: User | null }) {
     const pathname = usePathname();
     const router = useRouter();
-    // const { data: session } = authClient.useSession();
-    // console.log("Navbar session:", session);
-    // const user = session?.user as User | undefined;
-    console.log("Navbar user:", user);
 
     const navLinks = [
         { name: "Home", href: "/" },

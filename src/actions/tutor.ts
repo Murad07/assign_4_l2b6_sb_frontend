@@ -45,6 +45,45 @@ export async function updateTutorProfile(data: any) {
     }
 }
 
+export async function updateAvailability(availability: any[]) {
+    try {
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
+        if (!token) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const res = await fetch(`${API_URL}/tutor/availability`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Origin": "http://localhost:5000",
+                Cookie: `${tokenCookie?.name}=${token}`,
+            },
+            body: JSON.stringify({ availability }),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            return {
+                success: false,
+                error: result.message || "Failed to update availability",
+            };
+        }
+
+        revalidatePath("/tutor/profile"); // Assuming this is where it's shown
+        return { success: true, data: result };
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || "Something went wrong",
+        };
+    }
+}
+
 export async function getMyTutorProfile() {
     try {
         const { AuthService } = await import("@/services/auth.service");

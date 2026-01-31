@@ -81,12 +81,11 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 - [x] **6.2 Tutor Profile Management** (`/tutor/profile`):
     - [x] Create/Edit Profile Form (Bio, Expertise, Education, Rate).
     - [x] `updateTutorProfile` Server Action.
-- [ ] **6.3 Availability Management** (`/tutor/availability`):
-    - [ ] UI to add/remove time slots.
-    - [ ] `updateAvailability` Server Action.
-- [ ] **6.4 Session Management**:
-    - [ ] View upcoming sessions/bookings.
-    - [ ] Action to "Mark as Completed".
+- [x] **6.3 Availability Management** (`/tutor/availability`):
+    - [x] UI to add/remove time slots.
+    - [x] `updateAvailability` Server Action.
+- [x] **6.4 Session Management**:
+    - [x] View upcoming sessions/bookings.
 
 ---
 

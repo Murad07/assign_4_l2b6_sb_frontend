@@ -28,4 +28,24 @@ export const TutorService = {
         if (!res.ok) throw new Error("Failed to fetch featured tutors");
         return res.json();
     },
+
+    getMySessions: async (): Promise<ApiResponse<any[]>> => {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
+        if (!token) return { success: false, message: "Unauthorized", data: [] };
+
+        const res = await fetch(`${API_URL}/tutor/sessions/my-sessions`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
+            },
+            cache: "no-store",
+        });
+
+        if (!res.ok) return { success: false, message: "Failed to fetch sessions", data: [] };
+        return res.json();
+    }
 };

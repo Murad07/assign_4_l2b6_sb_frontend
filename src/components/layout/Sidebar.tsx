@@ -18,7 +18,7 @@ export default function Sidebar({ user }: { user?: User | null }) {
 
     const tutorLinks = [
         { name: "Dashboard", href: "/tutor/dashboard" },
-        { name: "Availability", href: "/tutor/availability" },
+        { name: "My Sessions", href: "/tutor/sessions" },
         { name: "Profile", href: "/tutor/profile" },
     ];
 

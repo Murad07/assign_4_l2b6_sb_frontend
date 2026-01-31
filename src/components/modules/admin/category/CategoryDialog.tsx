@@ -35,6 +35,7 @@ export default function CategoryDialog({ category, trigger }: CategoryDialogProp
         setIsLoading(true);
 
         const payload = { name, description, icon };
+        console.log('category', category)
 
         try {
             let res;

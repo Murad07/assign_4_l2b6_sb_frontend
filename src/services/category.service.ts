@@ -1,4 +1,5 @@
 import { Category } from "@/types";
+import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -35,13 +36,15 @@ export const CategoryService = {
     },
 
     updateCategory: async (id: string, data: any) => {
-        const { cookies } = await import("next/headers");
-        const token = (await cookies()).get("better-auth.session_token")?.value;
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
         const res = await fetch(`${API_URL}/categories/${id}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify(data),
         });

@@ -18,13 +18,15 @@ export const CategoryService = {
     },
 
     createCategory: async (data: any) => {
-        const { cookies } = await import("next/headers");
-        const token = (await cookies()).get("better-auth.session_token")?.value;
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
         const res = await fetch(`${API_URL}/categories`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify(data),
         });
@@ -56,12 +58,14 @@ export const CategoryService = {
     },
 
     deleteCategory: async (id: string) => {
-        const { cookies } = await import("next/headers");
-        const token = (await cookies()).get("better-auth.session_token")?.value;
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
         const res = await fetch(`${API_URL}/categories/${id}`, {
             method: "DELETE",
             headers: {
-                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
             },
         });
         if (!res.ok) {

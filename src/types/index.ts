@@ -20,6 +20,7 @@ export interface User {
     phone?: string | null;
     createdAt?: string;
     updatedAt?: string;
+    tutorProfile?: Tutor | null;
 }
 
 export interface Tutor {

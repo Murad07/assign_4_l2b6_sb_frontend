@@ -78,9 +78,9 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 ## Phase 6: Tutor Features (Dashboard)
 - [x] **6.1 Tutor Dashboard** (`/tutor/dashboard`):
     - [x] Basic stats overview.
-- [ ] **6.2 Tutor Profile Management** (`/tutor/profile`):
-    - [ ] Create/Edit Profile Form (Bio, Expertise, Education, Rate).
-    - [ ] `updateTutorProfile` Server Action.
+- [x] **6.2 Tutor Profile Management** (`/tutor/profile`):
+    - [x] Create/Edit Profile Form (Bio, Expertise, Education, Rate).
+    - [x] `updateTutorProfile` Server Action.
 - [ ] **6.3 Availability Management** (`/tutor/availability`):
     - [ ] UI to add/remove time slots.
     - [ ] `updateAvailability` Server Action.

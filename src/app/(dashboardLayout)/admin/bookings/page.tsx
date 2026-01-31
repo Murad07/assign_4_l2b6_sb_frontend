@@ -12,9 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AdminBookingsPage() {
     let bookings = [];
+    let totalBookings = 0;
+
     try {
         const res = await BookingService.getAllBookings();
         bookings = res.data || [];
+        totalBookings = res.pagination?.total || bookings.length;
     } catch (error) {
         console.error("Failed to fetch all bookings:", error);
     }
@@ -23,7 +26,7 @@ export default async function AdminBookingsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Booking Management</h1>
-                <Badge variant="outline">{bookings.length} Total</Badge>
+                <Badge variant="outline">{totalBookings} Total</Badge>
             </div>
 
             <Card>
@@ -51,7 +54,8 @@ export default async function AdminBookingsPage() {
                             ) : (
                                 bookings.map((booking: any) => {
                                     const studentName = booking.student?.name || "Unknown Student";
-                                    const tutorName = booking.tutor?.user?.name || "Unknown Tutor";
+                                    // Based on the user's provided JSON, tutor name is directly in tutor object
+                                    const tutorName = booking.tutor?.name || "Unknown Tutor";
                                     const sessionDate = booking.sessionDate ? new Date(booking.sessionDate).toLocaleDateString() : 'N/A';
 
                                     return (

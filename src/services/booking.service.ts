@@ -34,15 +34,34 @@ export const BookingService = {
 
         if (!token) return { success: false, message: "Unauthorized", data: [] };
 
-        const res = await fetch(`${API_URL}/bookings/admin`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            cache: "no-store",
-        });
+        try {
+            const res = await fetch(`${API_URL}/bookings/admin`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                cache: "no-store",
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to fetch all bookings", data: [] };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to fetch all bookings", data: [] };
+
+            const responseData = await res.json();
+
+            // Handle nested data structure
+            if (responseData.data && Array.isArray(responseData.data.data)) {
+                return {
+                    success: responseData.success,
+                    message: responseData.message,
+                    data: responseData.data.data,
+                    pagination: responseData.data.meta,
+                };
+            }
+
+            return responseData;
+
+        } catch (error) {
+            console.error("Error fetching admin bookings:", error);
+            return { success: false, message: "Failed to fetch all bookings", data: [] };
+        }
     },
 };

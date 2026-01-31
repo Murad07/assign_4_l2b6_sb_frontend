@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
 import ReviewModal from "@/components/modules/review/ReviewModal";
+import BookingStatusAction from "@/components/modules/booking/BookingStatusAction";
 
 export default async function MyBookingsPage() {
     let bookings = [];
@@ -30,7 +31,6 @@ export default async function MyBookingsPage() {
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {bookings.map((booking: any) => {
-                        // Fallbacks in case structure differs
                         const tutorName = booking.tutor?.user?.name || "Tutor";
                         const subject = booking.subject || "General Session";
                         const startTime = new Date(booking.startTime);
@@ -59,7 +59,11 @@ export default async function MyBookingsPage() {
                                             {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
-                                    {/* Action buttons (Reschedule/Cancel) could go here */}
+
+                                    {booking.status !== "COMPLETED" && booking.status !== "CANCELLED" && (
+                                        <BookingStatusAction bookingId={booking.id} currentStatus={booking.status} isTutor={false} />
+                                    )}
+
                                     {booking.status === "COMPLETED" && (
                                         <ReviewModal bookingId={booking.id} tutorId={booking.tutorId} />
                                     )}

@@ -52,6 +52,7 @@ This document provides a comprehensive list of all API endpoints for the applica
 | `GET`  | `/`      | Student, Tutor       | Get a list of bookings for the current user. |
 | `GET`  | `/admin` | Admin                | Get a list of all bookings for all users.    |
 | `GET`  | `/:id`   | Student, Tutor, Admin| Get details of a single booking by its ID.   |
+| `PATCH`| `/:id/status`| Student, Tutor       | Update booking status (Student can cancel, Tutor can complete). |
 
 ---
 

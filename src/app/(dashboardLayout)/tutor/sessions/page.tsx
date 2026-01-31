@@ -2,6 +2,7 @@ import { TutorService } from "@/services/tutor.service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User } from "lucide-react";
+import BookingStatusAction from "@/components/modules/booking/BookingStatusAction";
 
 export default async function TutorSessionsPage() {
     let sessions = [];
@@ -60,6 +61,7 @@ export default async function TutorSessionsPage() {
                                             {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
+                                    <BookingStatusAction bookingId={session.id} currentStatus={session.status} isTutor={true} />
                                 </CardContent>
                             </Card>
                         );

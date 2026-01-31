@@ -86,6 +86,8 @@ This document outlines the step-by-step plan to build the frontend for the Skill
     - [x] `updateAvailability` Server Action.
 - [x] **6.4 Session Management**:
     - [x] View upcoming sessions/bookings.
+    - [x] Action to "Mark as Completed" (Tutor) / "Cancel" (Student).
+
 
 ---
 

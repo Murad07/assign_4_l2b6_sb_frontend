@@ -48,3 +48,46 @@ export async function createBooking(data: {
         };
     }
 }
+
+export async function updateBookingStatus(bookingId: string, status: "COMPLETED" | "CANCELLED") {
+    try {
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
+        if (!token) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const res = await fetch(`${API_URL}/bookings/${bookingId}/status`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Origin": "http://localhost:5000",
+                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
+            },
+            body: JSON.stringify({ status }),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            return {
+                success: false,
+                error: result.message || "Failed to update booking status",
+            };
+        }
+
+        // Import revalidatePath here inside function scope or top level if added
+        const { revalidatePath } = await import("next/cache");
+        revalidatePath("/dashboard/bookings");
+        revalidatePath("/tutor/sessions");
+        return { success: true, data: result };
+    } catch (error: any) {
+        return {
+            success: false,
+            error: error.message || "Something went wrong",
+        };
+    }
+}

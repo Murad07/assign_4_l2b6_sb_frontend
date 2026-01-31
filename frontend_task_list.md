@@ -16,146 +16,93 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 *   **Language:** TypeScript
 
 **Project Structure Reference:**
-*   `src/actions`: Server Actions for mutations (e.g., login, register, booking).
+*   `src/actions`: Server Actions for mutations.
 *   `src/services`: API data fetching logic.
 *   `src/components/ui`: Shadcn base components.
 *   `src/components/layout`: Global layouts (Navbar, Footer, Sidebar).
-*   `src/components/modules`: Feature-specific components (e.g., `modules/home`, `modules/tutor`).
-*   `src/app/(commonLayout)`: Public pages layout.
+*   `src/components/modules`: Feature-specific components.
+*   `src/app/(commonLayout)`: Public pages.
 *   `src/app/(dashboardLayout)`: Protected dashboard pages.
 
 ---
 
 ## Phase 1: Project Setup & Architecture
-
-### 1.1 Initialization
-- [x] Initialize Next.js project with TypeScript.
-- [x] Configure Tailwind CSS & `tailwind.config.ts`.
-- [x] Set up absolute imports (`@/` -> `./src/`).
-- [x] Initialize Shadcn UI & configure `components.json`.
-- [x] **Structure Setup**: Create `actions`, `services`, `components/{ui,layout,modules}`, `types`, `lib`, `hooks` directories.
-
-### 1.2 Core Integration
-- [x] **Native Fetch**: Use standard `fetch` in Service layer.
-- [x] Install **Better Auth** & set up client wrapper.
-- [x] Install **Lucide React** & **Zod**.
-- [x] Remove `api-client.ts` (Axios) in favor of `fetch` wrapper or direct usage.
-
-### 1.3 Global UI Components
-- [x] Install/Create base Shadcn components: Button, Input, Card, Dialog, Toast, Form, DropdownMenu.
-- [x] Define **Theme/Colors** in globals.css for consistency.
+- [x] **1.1 Initialization**: Next.js, Tailwind, TypeScript, Absolute imports.
+- [x] **1.2 Core Integration**: Better Auth, Native Fetch setup, Zod, Lucide.
+- [x] **1.3 Global UI**: Shadcn basics (Button, Input, Card, etc.), Theme/Colors.
 
 ---
 
 ## Phase 2: Layouts & Navigation
-
-### 2.1 Common Layout (`app/(commonLayout)`)
-- [x] Create `Navbar` Component:
-    - [x] Logo, Navigation Links, Auth Buttons/User Menu.
-    - [x] Responsive design (mobile menu).
-- [x] Create `Footer` Component:
-    - [x] Links, Copyright, Socials.
-- [x] Implement `layout.tsx` for common public pages.
-
-### 2.2 Dashboard Layout (`app/(dashboardLayout)`)
-- [x] Create `Sidebar` Component:
-    - [x] Dynamic links based on Role (Student/Tutor/Admin).
-- [x] Create `DashboardHeader` Component.
-- [x] Implement `layout.tsx` for protected routes.
-
-### 2.3 Navigation & Auth State
-- [x] Implement Logout functionality (Server Action + Client).
-- [x] Update Navbar to show Login/Register OR Dashboard/Logout based on session.
+- [x] **2.1 Common Layout**: Navbar (Logo, Links, Auth Buttons), Footer, `layout.tsx`.
+- [x] **2.2 Dashboard Layout**: Sidebar (Role-based links), Dashboard Header, `layout.tsx`.
+- [x] **2.3 Navigation Logic**: Logout Action, Navbar state updates (Login vs Dashboard).
 
 ---
 
-## Phase 3: Authentication (Server Actions + Zod)
-
-### 3.1 Auth Actions (`src/actions/auth.ts`)
-- [x] `loginUser(data)`: Server action handling login via Better Auth.
-- [x] `registerUser(data)`: Server action for registration.
-
-### 3.2 Auth Forms (`src/components/modules/auth`)
-- [x] **Login Form**: 
-    - [x] Zod Schema Validation.
-    - [x] Integration with `loginUser` action.
-- [x] **Register Form**:
-    - [x] Zod Schema (including Role selection).
-    - [x] Integration with `registerUser` action.
-
-### 3.3 Auth Pages
-- [x] `/login`: Renders Login Form.
-- [x] `/register`: Renders Register Form.
-
-### 3.4 Role-Based Dashboard Redirection Pages
-- [x] Student Dashboard: `/dashboard` (Overview & stats).
-- [x] Tutor Dashboard: `/tutor/dashboard` (Stats & sessions).
-- [x] Admin Dashboard: `/admin` (Platform overview).
+## Phase 3: Authentication
+- [x] **3.1 Auth Actions**: `loginUser`, `registerUser` with Better Auth.
+- [x] **3.2 Auth Forms**: Login & Register Forms with Zod validation.
+- [x] **3.3 Auth Pages**: `/login`, `/register`.
+- [x] **3.4 Role-Based Redirection**: Route to specific dashboards after login.
 
 ---
 
-## Phase 4: Homepage & Public Modules (Mandatory: 4 Sections)
-
-### 4.1 Hero Section
-- [x] Design a high-impact Hero with "Find Tutors" CTA.
-- [x] Animated elements or search bar integration.
-
-### 4.2 Featured Tutors Section
-- [x] Service: `tutor.service.ts` -> `getFeaturedTutors()`.
-- [x] Component: Grid of `TutorCard`.
-
-### 4.3 Categories Section
-- [x] Service: `category.service.ts` -> `getAllCategories()`.
-- [x] Component: Visual grid/list of categories.
-
-### 4.4 Testimonial/Trust Section
-- [x] "How it works" or "Student Reviews" section to build trust.
-
-### 4.5 Tutor Listing Page (`/tutors`)
-- [x] Filter Sidebar (Category, Price, Rating).
-- [x] Search Functionality.
-- [x] Pagination/Infinite Scroll (Simple Native Fetch implemented).
+## Phase 4: Public Modules (Homepage & Tutors)
+- [x] **4.1 Hero Section**: High-impact design, Search CTA.
+- [x] **4.2 Featured Tutors**: Fetch & Display grid of qualified tutors.
+- [x] **4.3 Categories**: Browse tutors by subject category.
+- [x] **4.4 Trust/Reviews**: Testimonials or "How it works" section.
+- [x] **4.5 Tutor Listing Page** (`/tutors`): Filter Sidebar, Search, Pagination.
+- [ ] **4.6 Tutor Details Page** (`/tutors/[id]`):
+    - [x] Profile Info (Bio, Skills, Rates).
+    - [x] Booking Modal Integration.
+    - [ ] **Display Reviews**: List student reviews for this tutor.
 
 ---
 
 ## Phase 5: Student Features (Dashboard)
-
-### 5.1 Booking System
-- [x] **Action**: `createBooking(data)` in `src/actions/booking.ts`.
-- [x] **Validation**: Zod schema for booking dates/slots.
-- [x] **UI**: Calendar/Time-slot picker on Tutor Details page.
-
-### 5.2 My Bookings
-- [x] Service: `booking.service.ts` -> `getUserBookings()`.
-- [x] UI: List of bookings with status (Pending, Confirmed).
+- [x] **5.1 Booking System**:
+    - [x] `createBooking` Server Action.
+    - [x] Booking Modal with Calendar/Time-selection.
+- [x] **5.2 My Bookings** (`/dashboard/bookings`):
+    - [x] List user bookings with status labels.
+- [x] **5.3 Student Profile** (`/dashboard/profile`):
+    - [x] Create Profile Form via `updateStudentProfile` action.
+- [ ] **5.4 Reviews System**:
+    - [ ] `createReview` Server Action.
+    - [ ] UI to leave a review for completed sessions.
 
 ---
 
 ## Phase 6: Tutor Features (Dashboard)
-
-### 6.1 Profile & Availability
-- [ ] **Action**: `updateProfile` and `updateAvailability`.
-- [ ] **UI**: Form to manage bio, subjects, and calendar time slots.
+- [x] **6.1 Tutor Dashboard** (`/tutor/dashboard`):
+    - [x] Basic stats overview.
+- [ ] **6.2 Tutor Profile Management** (`/tutor/profile`):
+    - [ ] Create/Edit Profile Form (Bio, Expertise, Education, Rate).
+    - [ ] `updateTutorProfile` Server Action.
+- [ ] **6.3 Availability Management** (`/tutor/availability`):
+    - [ ] UI to add/remove time slots.
+    - [ ] `updateAvailability` Server Action.
+- [ ] **6.4 Session Management**:
+    - [ ] View upcoming sessions/bookings.
+    - [ ] Action to "Mark as Completed".
 
 ---
 
 ## Phase 7: Admin Features (Dashboard)
-
-### 7.1 User & Content Management
-- [ ] Manage Users Table (Ban/Unban).
-- [ ] Manage Categories.
+- [x] **7.1 Admin Dashboard** (`/admin`):
+    - [x] Basic stats overview.
+- [ ] **7.2 User Management** (`/admin/users`):
+    - [ ] Table of all users.
+    - [ ] Action to Ban/Unban users.
+- [ ] **7.3 Booking Management** (`/admin/bookings`):
+    - [ ] View all platform bookings.
+- [ ] **7.4 Category Management** (`/api/admin/categories`):
+    - [ ] List, Create, Delete Categories (optional UI).
 
 ---
 
-## Phase 8: Polish & Deployment
-
-### 8.1 Final UX Review
-- [ ] Check responsive behavior on all sections.
-- [ ] Ensure empty states, loading states, and error states are handled.
-
-### 8.2 Deployment (Vercel)
-- [ ] **Pre-Deployment Check**: Run `npm run build` locally to ensure no type errors.
-- [ ] **Vercel Configuration**:
-    - [ ] Import project from GitHub.
-    - [ ] **Environment Variables**: Set `NEXT_PUBLIC_API_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` etc.
-- [ ] **Verification**: Test live site (especially Auth cookies & API calls).
+## Phase 8: Deployment & Polish
+- [ ] **8.1 Final UX Review**: Loading states, Error handling, Responsive checks.
+- [ ] **8.2 Deployment**: Build check, Vercel config, Env variables, Live test.

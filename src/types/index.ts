@@ -21,6 +21,7 @@ export interface User {
     createdAt?: string;
     updatedAt?: string;
     tutorProfile?: Tutor | null;
+    isBlocked?: boolean;
 }
 
 export interface Tutor {

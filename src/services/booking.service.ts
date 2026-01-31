@@ -26,4 +26,23 @@ export const BookingService = {
 
         return res.json();
     },
+
+    getAllBookings: async () => {
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
+        if (!token) return { success: false, message: "Unauthorized", data: [] };
+
+        const res = await fetch(`${API_URL}/bookings/admin`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
+            },
+            cache: "no-store",
+        });
+
+        if (!res.ok) return { success: false, message: "Failed to fetch all bookings", data: [] };
+        return res.json();
+    },
 };

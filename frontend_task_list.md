@@ -94,13 +94,17 @@ This document outlines the step-by-step plan to build the frontend for the Skill
 ## Phase 7: Admin Features (Dashboard)
 - [x] **7.1 Admin Dashboard** (`/admin`):
     - [x] Basic stats overview.
-- [ ] **7.2 User Management** (`/admin/users`):
-    - [ ] Table of all users.
-    - [ ] Action to Ban/Unban users.
-- [ ] **7.3 Booking Management** (`/admin/bookings`):
-    - [ ] View all platform bookings.
-- [ ] **7.4 Category Management** (`/api/admin/categories`):
-    - [ ] List, Create, Delete Categories (optional UI).
+- [x] **7.2 User Management** (`/admin/users`):
+    - [x] List all users with status (Active/Blocked).
+    - [x] Ban/Unban users action.
+    - [x] Promote/Demote roles (optional but good).
+- [x] **7.3 Booking Management** (`/admin/bookings`):
+    - [x] View all platform bookings.
+- [x] **7.4 Category Management** (`/admin/categories`):
+    - [x] List, Add, Edit, Delete categories.
+- [x] **7.5 Tutor Approvals** (`/admin/tutors`):
+    - [x] View pending tutors.
+    - [x] Approve/Reject actions.
 
 ---
 

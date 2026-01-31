@@ -25,6 +25,7 @@ export default function Sidebar({ user }: { user?: User | null }) {
     const adminLinks = [
         { name: "Dashboard", href: "/admin" },
         { name: "Users", href: "/admin/users" },
+        { name: "Tutor Approvals", href: "/admin/tutors" },
         { name: "Bookings", href: "/admin/bookings" },
         { name: "Categories", href: "/admin/categories" },
     ];

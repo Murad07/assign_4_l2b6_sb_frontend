@@ -33,8 +33,7 @@ export default async function MyBookingsPage() {
                     {bookings.map((booking: any) => {
                         const tutorName = booking.tutor?.user?.name || "Tutor";
                         const subject = booking.subject || "General Session";
-                        const startTime = new Date(booking.startTime);
-                        const endTime = new Date(booking.endTime);
+                        const sessionDate = new Date(booking.sessionDate);
 
                         return (
                             <Card key={booking.id}>
@@ -50,13 +49,12 @@ export default async function MyBookingsPage() {
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Calendar className="mr-2 h-4 w-4" />
-                                        <span>{startTime.toLocaleDateString()}</span>
+                                        <span>{sessionDate.toLocaleDateString()}</span>
                                     </div>
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Clock className="mr-2 h-4 w-4" />
                                         <span>
-                                            {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-                                            {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {booking.sessionTime} ({booking.duration} mins)
                                         </span>
                                     </div>
 

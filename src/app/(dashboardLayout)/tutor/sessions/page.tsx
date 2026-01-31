@@ -32,8 +32,7 @@ export default async function TutorSessionsPage() {
                     {sessions.map((session: any) => {
                         const studentName = session.student?.name || "Student";
                         const subject = session.subject || "Session";
-                        const startTime = new Date(session.startTime);
-                        const endTime = new Date(session.endTime);
+                        const sessionDate = new Date(session.sessionDate);
 
                         return (
                             <Card key={session.id}>
@@ -52,13 +51,12 @@ export default async function TutorSessionsPage() {
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Calendar className="mr-2 h-4 w-4" />
-                                        <span>{startTime.toLocaleDateString()}</span>
+                                        <span>{sessionDate.toLocaleDateString()}</span>
                                     </div>
                                     <div className="flex items-center text-sm text-muted-foreground">
                                         <Clock className="mr-2 h-4 w-4" />
                                         <span>
-                                            {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-                                            {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {session.sessionTime} ({session.duration} mins)
                                         </span>
                                     </div>
                                     <BookingStatusAction bookingId={session.id} currentStatus={session.status} isTutor={true} />

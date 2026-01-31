@@ -16,10 +16,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { updateTutorProfile } from "@/actions/tutor";
+import { updateTutorProfile, createTutorProfile } from "@/actions/tutor";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { Category, Tutor } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tutor } from "@/types";
 
 const formSchema = z.object({
     bio: z.string().min(10, "Bio must be at least 10 characters"),
@@ -27,14 +43,17 @@ const formSchema = z.object({
     hourlyRate: z.number().min(1, "Hourly rate must be at least 1"),
     education: z.string().min(2, "Education is required"),
     experience: z.string().min(2, "Experience is required"),
+    categoryIds: z.array(z.string()).min(1, "Select at least one category"),
 });
 
 interface TutorProfileFormProps {
     tutor: Tutor | null;
+    categories: Category[];
 }
 
-export default function TutorProfileForm({ tutor }: TutorProfileFormProps) {
+export default function TutorProfileForm({ tutor, categories }: TutorProfileFormProps) {
     const router = useRouter();
+    const [open, setOpen] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -44,6 +63,7 @@ export default function TutorProfileForm({ tutor }: TutorProfileFormProps) {
             hourlyRate: tutor?.hourlyRate || 0,
             education: tutor?.education || "",
             experience: tutor?.experience || "",
+            categoryIds: tutor?.categories?.map(c => c.id) || [],
         },
     });
 
@@ -53,10 +73,14 @@ export default function TutorProfileForm({ tutor }: TutorProfileFormProps) {
             const formattedValues = {
                 ...values,
                 expertise: values.expertise.split(",").map(s => s.trim()).filter(Boolean),
-                categoryIds: tutor?.categories?.map(c => c.id) || [], // Preserve existing categories or empty
             };
 
-            const res = await updateTutorProfile(formattedValues);
+            let res;
+            if (tutor) {
+                res = await updateTutorProfile(formattedValues);
+            } else {
+                res = await createTutorProfile(formattedValues);
+            }
 
             if (res.success) {
                 toast.success("Tutor profile updated!");
@@ -77,6 +101,85 @@ export default function TutorProfileForm({ tutor }: TutorProfileFormProps) {
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                        <FormField
+                            control={form.control}
+                            name="categoryIds"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Categories</FormLabel>
+                                    <Popover open={open} onOpenChange={setOpen}>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={open}
+                                                    className="justify-between"
+                                                >
+                                                    {field.value.length > 0
+                                                        ? `${field.value.length} selected`
+                                                        : "Select categories..."}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Search category..." />
+                                                <CommandList>
+                                                    <CommandEmpty>No category found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {categories.map((category) => (
+                                                            <CommandItem
+                                                                key={category.id}
+                                                                value={category.name}
+                                                                onSelect={() => {
+                                                                    const current = field.value;
+                                                                    const isSelected = current.includes(category.id);
+                                                                    if (isSelected) {
+                                                                        field.onChange(current.filter((id) => id !== category.id));
+                                                                    } else {
+                                                                        field.onChange([...current, category.id]);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4",
+                                                                        field.value.includes(category.id) ? "opacity-100" : "opacity-0"
+                                                                    )}
+                                                                />
+                                                                {category.name}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {field.value.map((id) => {
+                                            const category = categories.find((c) => c.id === id);
+                                            return category ? (
+                                                <div key={id} className="bg-secondary text-secondary-foreground px-2 py-1 rounded text-xs flex items-center gap-1">
+                                                    {category.icon} {category.name}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => field.onChange(field.value.filter((val) => val !== id))}
+                                                        className="ml-1 hover:text-destructive"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <FormField
                             control={form.control}
                             name="bio"

@@ -4,10 +4,12 @@ import TutorProfileForm from "@/components/modules/tutor/profile/TutorProfileFor
 import StudentProfileForm from "@/components/modules/student/profile/StudentProfileForm";
 import AvailabilityManager from "@/components/modules/tutor/availability/AvailabilityManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CategoryService } from "@/services/category.service";
 
 export default async function TutorProfilePage() {
     const user = await AuthService.getCurrentUser();
     const tutorProfile = await getMyTutorProfile();
+    const categories = await CategoryService.getAllCategories();
 
     if (!user) {
         return <div>Unauthorized</div>;
@@ -24,7 +26,7 @@ export default async function TutorProfilePage() {
                     <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 </TabsList>
                 <TabsContent value="tutor">
-                    <TutorProfileForm tutor={tutorProfile} />
+                    <TutorProfileForm tutor={tutorProfile} categories={categories.data} />
                 </TabsContent>
                 <TabsContent value="availability">
                     <AvailabilityManager initialAvailability={tutorProfile?.availability || []} />

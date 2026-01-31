@@ -116,17 +116,29 @@ export const AdminService = {
 
         if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/approve`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-        });
+        try {
+            const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/approve`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                body: JSON.stringify({ isApproved: true }),
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to approve tutor", data: null as any };
-        return res.json();
+            const data = await res.json();
+            if (!res.ok) {
+                return { success: false, message: data.message || "Failed to approve tutor", data: null as any };
+            }
+            // If the API returns the raw object without { success: true } wrapper
+            if (data.success === undefined) {
+                return { success: true, message: "Tutor approved successfully", data: data };
+            }
+            return data;
+        } catch (error: any) {
+            return { success: false, message: error.message || "Failed to approve tutor", data: null as any };
+        }
     },
 
     rejectTutor: async (tutorId: string): Promise<ApiResponse<any>> => {
@@ -136,16 +148,27 @@ export const AdminService = {
 
         if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/reject`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-        });
+        try {
+            const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/reject`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to reject tutor", data: null as any };
-        return res.json();
+            const data = await res.json();
+            if (!res.ok) {
+                return { success: false, message: data.message || "Failed to reject tutor", data: null as any };
+            }
+            // If the API returns the raw object without { success: true } wrapper
+            if (data.success === undefined) {
+                return { success: true, message: "Tutor rejected successfully", data: data };
+            }
+            return data;
+        } catch (error: any) {
+            return { success: false, message: error.message || "Failed to reject tutor", data: null as any };
+        }
     },
 };

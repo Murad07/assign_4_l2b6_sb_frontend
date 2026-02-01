@@ -30,7 +30,7 @@ export default function Navbar({ user }: { user?: User | null }) {
 
     const handleLogout = async () => {
         await logoutUser();
-        window.location.reload(); // Refresh to update auth state
+        window.location.href = "/";
     };
 
     const getDashboardLink = () => {

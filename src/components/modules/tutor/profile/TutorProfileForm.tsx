@@ -42,7 +42,7 @@ const formSchema = z.object({
     expertise: z.string().min(2, "Expertise is required"), // We'll handle split by comma
     hourlyRate: z.number().min(1, "Hourly rate must be at least 1"),
     education: z.string().min(2, "Education is required"),
-    experience: z.string().min(2, "Experience is required"),
+    experience: z.string().min(1, "Experience is required"),
     categoryIds: z.array(z.string()).min(1, "Select at least one category"),
 });
 
@@ -101,6 +101,20 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+                        <FormField
+                            control={form.control}
+                            name="bio"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bio</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Tell students about yourself..." className="min-h-[100px]" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <FormField
                             control={form.control}
@@ -175,20 +189,6 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
                                             ) : null;
                                         })}
                                     </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="bio"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Bio</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="Tell students about yourself..." className="min-h-[100px]" {...field} />
-                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

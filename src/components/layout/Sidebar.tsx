@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { User } from "@/types";
+import { logoutUser } from "@/actions/auth";
+import { LogOut } from "lucide-react";
 
 export default function Sidebar({ user }: { user?: User | null }) {
     const pathname = usePathname();
@@ -35,11 +37,11 @@ export default function Sidebar({ user }: { user?: User | null }) {
     if (userRole === "Admin") sidebarLinks = adminLinks;
 
     return (
-        <aside className="w-64 border-r bg-muted/10 hidden md:block min-h-screen p-6">
+        <aside className="w-64 border-r bg-muted/10 hidden md:block min-h-screen p-6 flex flex-col">
             <div className="mb-8 px-2">
                 <Link href="/" className="text-2xl font-bold text-primary">SkillBridge</Link>
             </div>
-            <nav className="space-y-2">
+            <nav className="space-y-2 flex-1">
                 {sidebarLinks.map((link) => (
                     <Link
                         key={link.href}
@@ -55,6 +57,19 @@ export default function Sidebar({ user }: { user?: User | null }) {
                     </Link>
                 ))}
             </nav>
+
+            <div className="border-t pt-4 mt-auto">
+                <button
+                    onClick={async () => {
+                        await logoutUser();
+                        window.location.href = "/";
+                    }}
+                    className="flex w-full items-center px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-muted text-foreground hover:text-destructive"
+                >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                </button>
+            </div>
         </aside>
     )
 }

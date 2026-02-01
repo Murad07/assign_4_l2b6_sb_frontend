@@ -53,7 +53,7 @@ export default async function Home() {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                href={`/tutors?category=${category.id}`}
+                href={`/tutors?categoryId=${category.id}`}
                 className="p-6 border rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-card text-center space-y-2"
               >
                 <div className="text-4xl">{category.icon}</div>

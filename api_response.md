@@ -1,4 +1,4 @@
-Get all Tutors: http://localhost:5000/api/tutor
+Get all Tutors: http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api/tutor
 
 Response:
 {
@@ -66,7 +66,7 @@ Response:
     }
 }
 
-Get Tutor by ID: http://localhost:5000/api/tutor/cmky0zp270000ccd186nste98
+Get Tutor by ID: http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api/tutor/cmky0zp270000ccd186nste98
 
 Response: 
 {

@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function createReview(data: any) {
     try {
@@ -19,7 +19,7 @@ export async function createReview(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:5000",
+                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
                 Authorization: `Bearer ${token}`,
                 Cookie: `${tokenCookie?.name}=${token}`,
             },

@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function createBooking(data: {
     tutorId: string;
@@ -71,7 +71,7 @@ export async function updateBookingStatus(bookingId: string, status: "COMPLETED"
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:5000",
+                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
                 Authorization: `Bearer ${token}`,
                 Cookie: `${tokenCookie?.name}=${token}`,
             },

@@ -1,6 +1,6 @@
 import { Tutor, ApiResponse } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const TutorService = {
     getAllTutors: async (params?: any): Promise<ApiResponse<Tutor[]>> => {

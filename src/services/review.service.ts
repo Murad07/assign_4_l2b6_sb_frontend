@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { ApiResponse, Review } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const ReviewService = {
     getTutorReviews: async (tutorId: string): Promise<ApiResponse<Review[]>> => {
@@ -12,7 +12,7 @@ export const ReviewService = {
         const res = await fetch(`${API_URL}/reviews/${tutorId}`, {
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:5000",
+                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
                 Cookie: `${tokenCookie?.name}=${token}`,
             },
             cache: "no-store",

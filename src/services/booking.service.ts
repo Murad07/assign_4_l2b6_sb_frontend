@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const BookingService = {
     getUserBookings: async () => {

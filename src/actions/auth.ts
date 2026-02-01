@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function loginUser(data: any) {
     try {
@@ -12,7 +12,7 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:5000"
+                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -58,7 +58,7 @@ export async function registerUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:5000"
+                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",

@@ -47,5 +47,25 @@ export const TutorService = {
 
         if (!res.ok) return { success: false, message: "Failed to fetch sessions", data: [] };
         return res.json();
+    },
+
+    getTutorProfile: async (): Promise<ApiResponse<Tutor>> => {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
+
+        if (!token) return { success: false, message: "Unauthorized", data: null as any };
+
+        const res = await fetch(`${API_URL}/tutor/profile/me`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
+            },
+            cache: "no-store",
+        });
+
+        if (!res.ok) return { success: false, message: "Failed to fetch profile", data: null as any };
+        return res.json();
     }
 };

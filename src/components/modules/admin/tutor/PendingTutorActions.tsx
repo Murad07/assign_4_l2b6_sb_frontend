@@ -5,12 +5,26 @@ import { Button } from "@/components/ui/button";
 import { approveTutorAction, rejectTutorAction } from "@/actions/admin";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import { Badge } from "@/components/ui/badge";
 
 interface PendingTutorActionsProps {
     tutorId: string;
+    isApproved?: boolean;
 }
 
-export default function PendingTutorActions({ tutorId }: PendingTutorActionsProps) {
+export default function PendingTutorActions({ tutorId, isApproved }: PendingTutorActionsProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleApprove = async () => {
@@ -29,8 +43,10 @@ export default function PendingTutorActions({ tutorId }: PendingTutorActionsProp
         }
     };
 
+    // ... inside the component ...
+
     const handleReject = async () => {
-        if (!confirm("Are you sure you want to reject this tutor?")) return;
+        // Removed window.confirm
 
         setIsLoading(true);
         try {
@@ -54,21 +70,43 @@ export default function PendingTutorActions({ tutorId }: PendingTutorActionsProp
                 variant="outline"
                 className="text-green-600 hover:text-green-700 hover:bg-green-50"
                 onClick={handleApprove}
-                disabled={isLoading}
+                disabled={isLoading || isApproved}
             >
                 <Check className="h-4 w-4 mr-1" />
-                Approve
+                {isApproved ? "Approved" : "Approve"}
             </Button>
-            <Button
-                size="sm"
-                variant="outline"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={handleReject}
-                disabled={isLoading}
-            >
-                <X className="h-4 w-4 mr-1" />
-                Reject
-            </Button>
+
+            {isApproved === false ? (
+                <Badge variant="destructive">Rejected</Badge>
+            ) : (
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            disabled={isLoading}
+                        >
+                            <X className="h-4 w-4 mr-1" />
+                            Reject
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Reject Tutor Application</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to reject this tutor? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleReject} className="bg-red-600 hover:bg-red-700">
+                                Reject
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
     );
 }

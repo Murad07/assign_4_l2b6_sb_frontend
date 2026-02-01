@@ -80,7 +80,7 @@ export default async function TutorApprovalsPage() {
                                             {new Date(tutor.createdAt || "").toLocaleDateString()}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <PendingTutorActions tutorId={tutor.id} />
+                                            <PendingTutorActions tutorId={tutor.id} isApproved={tutor.isApproved} />
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -28,7 +28,7 @@ export const AdminService = {
             if (responseData.data && Array.isArray(responseData.data.data)) {
                 const users = responseData.data.data.map((user: any) => ({
                     ...user,
-                    isBlocked: user.status === "BLOCKED", // Map status to isBlocked
+                    isBlocked: user.status === "BANNED", // Map status to isBlocked
                     image: user.image || null,
                 }));
 
@@ -61,7 +61,7 @@ export const AdminService = {
                 Authorization: `Bearer ${token}`,
                 Cookie: `${tokenCookie?.name}=${token}`,
             },
-            body: JSON.stringify({ status: isBlocked ? "BLOCKED" : "ACTIVE" }),
+            body: JSON.stringify({ status: isBlocked ? "BANNED" : "ACTIVE" }),
         });
 
         if (!res.ok) return { success: false, message: "Failed to update user status", data: null as any };

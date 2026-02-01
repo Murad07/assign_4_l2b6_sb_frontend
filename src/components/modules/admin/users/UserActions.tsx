@@ -24,8 +24,10 @@ export default function UserActions({ user }: UserActionsProps) {
 
     const handleStatusUpdate = async (isBlocked: boolean) => {
         setIsLoading(true);
+        console.log('user id', user.id, isBlocked)
         try {
             const res = await updateUserStatusAction(user.id, isBlocked);
+            console.log('res -: ', res)
             if (res.success) {
                 toast.success(isBlocked ? "User blocked successfully" : "User activated successfully");
             } else {

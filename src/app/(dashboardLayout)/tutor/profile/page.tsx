@@ -1,4 +1,5 @@
 import { AuthService } from "@/services/auth.service";
+import { redirect } from "next/navigation";
 import { getMyTutorProfile } from "@/actions/tutor";
 import TutorProfileForm from "@/components/modules/tutor/profile/TutorProfileForm";
 import StudentProfileForm from "@/components/modules/student/profile/StudentProfileForm";
@@ -12,7 +13,7 @@ export default async function TutorProfilePage() {
     const categories = await CategoryService.getAllCategories();
 
     if (!user) {
-        return <div>Unauthorized</div>;
+        redirect("/login");
     }
 
     return (

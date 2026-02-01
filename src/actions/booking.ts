@@ -8,9 +8,16 @@ export async function createBooking(data: {
     tutorId: string;
     startTime: string;
     endTime: string;
+    sessionDate: string;
+    sessionTime: string;
+    duration: number;
+    subject: string;
+    price: number;
 }) {
     try {
-        const token = (await cookies()).get("better-auth.session_token")?.value;
+        const cookieStore = await cookies();
+        const tokenCookie = cookieStore.get("better-auth.session_token");
+        const token = tokenCookie?.value;
 
         if (!token) {
             return {
@@ -24,6 +31,7 @@ export async function createBooking(data: {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
+                Cookie: `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify(data),
         });

@@ -30,6 +30,7 @@ export default function BookingModal({ tutorId, hourlyRate, availability }: Book
         endTime: string;
         displayDate: string;
     } | null>(null);
+    const [subject, setSubject] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
 
@@ -69,7 +70,7 @@ export default function BookingModal({ tutorId, hourlyRate, availability }: Book
     const availableSlots = generateAvailableSlots();
 
     const handleBooking = async () => {
-        if (!selectedSlot) return;
+        if (!selectedSlot || !subject) return;
 
         setIsSubmitting(true);
         try {
@@ -77,10 +78,19 @@ export default function BookingModal({ tutorId, hourlyRate, availability }: Book
             const startDateTime = new Date(`${selectedSlot.date}T${selectedSlot.startTime}:00`);
             const endDateTime = new Date(`${selectedSlot.date}T${selectedSlot.endTime}:00`);
 
+            // Calculate duration in hours
+            const durationMs = endDateTime.getTime() - startDateTime.getTime();
+            const durationHours = durationMs / (1000 * 60 * 60);
+
             const res = await createBooking({
                 tutorId,
                 startTime: startDateTime.toISOString(),
                 endTime: endDateTime.toISOString(),
+                sessionDate: selectedSlot.date,
+                sessionTime: selectedSlot.startTime,
+                duration: durationHours,
+                subject: subject,
+                price: durationHours * hourlyRate,
             });
 
             if (res.success) {
@@ -110,34 +120,49 @@ export default function BookingModal({ tutorId, hourlyRate, availability }: Book
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-4 py-4 max-h-[300px] overflow-y-auto">
-                    {availableSlots.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2">
-                            {availableSlots.map((slot, idx) => (
-                                <button
-                                    key={`${slot.date}-${slot.startTime}-${idx}`}
-                                    onClick={() => setSelectedSlot(slot)}
-                                    className={`text-sm p-3 rounded-md border text-center transition-colors ${selectedSlot?.date === slot.date && selectedSlot?.startTime === slot.startTime
-                                        ? "bg-primary text-primary-foreground border-primary"
-                                        : "hover:bg-accent"
-                                        }`}
-                                >
-                                    <div className="font-semibold">{slot.displayDate}</div>
-                                    <div className="text-xs">{slot.displayTime}</div>
-                                </button>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-center text-muted-foreground py-8">
-                            No available slots found for the next 2 weeks.
-                        </p>
-                    )}
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Subject / Topic
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="e.g. React Hooks, Algebra basics..."
+                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="grid gap-4 py-4 max-h-[200px] overflow-y-auto">
+                        {availableSlots.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-2">
+                                {availableSlots.map((slot, idx) => (
+                                    <button
+                                        key={`${slot.date}-${slot.startTime}-${idx}`}
+                                        onClick={() => setSelectedSlot(slot)}
+                                        className={`text-sm p-3 rounded-md border text-center transition-colors ${selectedSlot?.date === slot.date && selectedSlot?.startTime === slot.startTime
+                                            ? "bg-primary text-primary-foreground border-primary"
+                                            : "hover:bg-accent"
+                                            }`}
+                                    >
+                                        <div className="font-semibold">{slot.displayDate}</div>
+                                        <div className="text-xs">{slot.displayTime}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-muted-foreground py-8">
+                                No available slots found for the next 2 weeks.
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <DialogFooter>
                     <Button
                         onClick={handleBooking}
-                        disabled={!selectedSlot || isSubmitting}
+                        disabled={!selectedSlot || !subject || isSubmitting}
                         className="w-full"
                     >
                         {isSubmitting ? (

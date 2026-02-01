@@ -54,7 +54,7 @@ export const AdminService = {
 
         if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        const res = await fetch(`${API_URL}/admin/users/${userId}/status`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -76,15 +76,16 @@ export const AdminService = {
 
         if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/admin/users/${userId}`, {
+        const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
                 Cookie: `${tokenCookie?.name}=${token}`,
             },
-            body: JSON.stringify({ role }),
+            body: JSON.stringify({ role: role }),
         });
+        console.log('role res: ', res, role);
 
         if (!res.ok) return { success: false, message: "Failed to update user role", data: null as any };
         return res.json();

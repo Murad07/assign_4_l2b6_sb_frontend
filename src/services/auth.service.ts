@@ -21,7 +21,7 @@ export const AuthService = {
 
             const { headers: nextHeaders } = await import("next/headers");
             const headerList = await nextHeaders();
-            const host = headerList.get("host");
+            const host = headerList.get("x-forwarded-host") || headerList.get("host"); // Professional Vercel check
             const userAgent = headerList.get("user-agent") || "";
             const protocol = host?.includes("localhost") ? "http" : "https";
             const currentOrigin = `${protocol}://${host}`;

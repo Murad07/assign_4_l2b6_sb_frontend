@@ -25,30 +25,38 @@ export async function loginUser(data: any) {
         const result = await res.json();
 
         console.log("Login result:", JSON.stringify(result, null, 2));
-        console.log("Set-Cookie header:", res.headers.get("Set-Cookie"));
+        // Professional Cookie Forwarding
+        const setCookieHeader = res.headers.get("Set-Cookie");
+        if (setCookieHeader) {
+            const { cookies: getCookies } = await import("next/headers");
+            const cookieStore = await getCookies();
+            const isProd = process.env.NODE_ENV === "production";
 
+            // Split and iterate over each cookie sent by the backend
+            const cookiesToSet = setCookieHeader.split(/,(?=[^;]+=[^;]+)/);
+
+            cookiesToSet.forEach(cookieStr => {
+                const parts = cookieStr.split(";")[0].split("=");
+                const name = parts[0].trim();
+                const value = parts.slice(1).join("=").trim();
+
+                if (name && value) {
+                    cookieStore.set(name, value, {
+                        httpOnly: true,
+                        secure: isProd,
+                        sameSite: isProd ? "none" : "lax" as const,
+                        path: "/",
+                        maxAge: 60 * 60 * 24 * 7,
+                    });
+                }
+            });
+        }
 
         if (!res.ok) {
             return {
                 success: false,
                 error: result.message || "Login failed"
             };
-        }
-
-        const setCookieHeader = res.headers.get("set-cookie"); // lowercase try করো
-        const parsedToken = setCookieHeader?.match(
-            /(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/
-        )?.[1];
-
-        const tokenToUse = parsedToken
-            ?? result.token
-            ?? result.session?.token
-            ?? result.data?.token;
-
-        console.log("Token to use:", tokenToUse); // null হলে backend এর response structure ভুল
-
-        if (!tokenToUse) {
-            return { success: false, error: "No token received from server" };
         }
 
         return { success: true, data: result.user, token: result.token };

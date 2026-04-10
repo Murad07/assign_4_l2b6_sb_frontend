@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { User } from "@/types";
+import { unstable_noStore as noStore } from "next/cache";
 
 // Senior Engineer Note: Server-side checks must hit the backend DIRECTLY to avoid proxy loops.
 const API_URL = process.env.API_URL || "http://localhost:5000/api";
@@ -8,6 +9,7 @@ const AUTH_URL = `${CLEAN_API_URL}/auth`;
 
 export const AuthService = {
     getSession: async function () {
+        noStore();
         try {
             const cookieStore = await cookies();
             const token = cookieStore.get("better-auth.session_token") ||

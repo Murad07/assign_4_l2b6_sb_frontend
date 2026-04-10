@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
 import { ApiResponse, Review } from "@/types";
+import { unstable_noStore as noStore } from "next/cache";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const ReviewService = {
     getTutorReviews: async (tutorId: string): Promise<ApiResponse<Review[]>> => {
+        noStore();
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");
         const token = tokenCookie?.value;

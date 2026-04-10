@@ -1,4 +1,5 @@
 import { Tutor, ApiResponse } from "@/types";
+import { unstable_noStore as noStore } from "next/cache";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
@@ -30,6 +31,7 @@ export const TutorService = {
     },
 
     getMySessions: async (): Promise<ApiResponse<any[]>> => {
+        noStore();
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");
@@ -50,6 +52,7 @@ export const TutorService = {
     },
 
     getTutorProfile: async (): Promise<ApiResponse<Tutor>> => {
+        noStore();
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");

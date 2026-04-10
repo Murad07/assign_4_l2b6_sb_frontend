@@ -7,7 +7,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 
 export async function loginUser(data: any) {
     try {
-        console.log("Login request data:", data);
         const appOrigin = process.env.NEXT_PUBLIC_APP_URL || "https://assign-4-l2b6-sb-frontend.vercel.app";
 
         const res = await fetch(`${API_URL}/auth/sign-in/email`, {
@@ -31,21 +30,23 @@ export async function loginUser(data: any) {
 
         // In a real Better Auth + Backend setup, we might need to forward Set-Cookie headers
         const setCookie = res.headers.get("Set-Cookie");
-        if (setCookie) {
-            const parsedToken = setCookie.match(/better-auth\.session_token=([^;]+)/)?.[1];
-            const tokenToUse = parsedToken || result.token;
+        const parsedToken = setCookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
 
+        // Better Auth typically returns token in result.token or result.session.token
+        const tokenToUse = parsedToken || result.token || result.session?.token;
+
+        if (tokenToUse) {
             (await cookies()).set("better-auth.session_token", tokenToUse, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
                 path: "/",
+                maxAge: 60 * 60 * 24 * 7, // 1 week
             });
         }
 
-        console.log("Login response result:", result);
 
-        return { success: true, data: result.user };
+        return { success: true, data: result.user, token: result.token };
     } catch (error: any) {
         return {
             success: false,

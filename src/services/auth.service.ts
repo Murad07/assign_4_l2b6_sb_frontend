@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
 import { User } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
-const AUTH_URL = `${API_URL}/auth`;
+// Senior Engineer Note: Server-side checks must hit the backend DIRECTLY to avoid proxy loops.
+const API_URL = process.env.API_URL || "http://localhost:5000/api";
+const CLEAN_API_URL = API_URL.endsWith("/api") ? API_URL : `${API_URL}/api`;
+const AUTH_URL = `${CLEAN_API_URL}/auth`;
 
 export const AuthService = {
     getSession: async function () {
@@ -13,16 +15,22 @@ export const AuthService = {
             // console.log("AuthService: All Cookies:", cookieStore.getAll());
 
             if (!token) {
-                console.log("AuthService: Token cookie missing");
                 return { data: null, error: { message: "Session is missing." } };
             }
 
-            // Send Header
+            // Send Headers - Include both standard and __Secure- prefix for production
             const headers: Record<string, string> = {
-                Cookie: `${token.name}=${token.value}`,
-                Authorization: `Bearer ${token.value}`,
-                Origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+                "Content-Type": "application/json",
+                "Cookie": `${token.name}=${token.value}; __Secure-${token.name}=${token.value}`,
+                "Authorization": `Bearer ${token.value}`,
+                "Origin": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+                "Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
             };
+
+            // Helpful for Better Auth cross-domain
+            if (process.env.NEXT_PUBLIC_APP_URL) {
+                headers["x-better-auth-origin"] = process.env.NEXT_PUBLIC_APP_URL;
+            }
 
             // console.log("AuthService: Sending Headers to Backend:", headers);
 
@@ -31,17 +39,14 @@ export const AuthService = {
                 cache: "no-store",
             });
 
-            // console.log("AuthService: Backend Response Status:", res.status);
-
             if (!res.ok) {
                 // console.error("Fetch session failed:", res.status, res.statusText);
                 return { data: null, error: { message: "Failed to fetch session" } };
             }
 
             const session = await res.json();
-            // console.log("Session JSON Data:", session);
 
-            if (session === null) {
+            if (session === null || (session.success === false)) {
                 return { data: null, error: { message: "Session is missing." } };
             }
 

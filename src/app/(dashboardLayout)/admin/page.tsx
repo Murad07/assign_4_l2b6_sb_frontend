@@ -4,6 +4,8 @@ import { BookingService } from "@/services/booking.service";
 import { TutorService } from "@/services/tutor.service";
 import { Users, GraduationCap, Calendar, ShieldCheck } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
     let totalUsers = 0;
     let totalTutors = 0;

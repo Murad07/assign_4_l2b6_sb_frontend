@@ -5,7 +5,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 
 export const TutorService = {
     getAllTutors: async (params?: any): Promise<ApiResponse<Tutor[]>> => {
-        // Construct query string from params
         const queryString = params ? new URLSearchParams(params).toString() : "";
         const res = await fetch(`${API_URL}/tutor?${queryString}`, {
             cache: "no-store",
@@ -31,46 +30,52 @@ export const TutorService = {
     },
 
     getMySessions: async (): Promise<ApiResponse<any[]>> => {
-        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, message: "Build Phase", data: [] };
-        noStore();
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            noStore();
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        if (!token) return { success: false, message: "Unauthorized", data: [] };
+            if (!token) return { success: false, message: "Unauthorized", data: [] };
 
-        const res = await fetch(`${API_URL}/tutor/sessions/my-sessions`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            cache: "no-store",
-        });
+            const res = await fetch(`${API_URL}/tutor/sessions/my-sessions`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                cache: "no-store",
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to fetch sessions", data: [] };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to fetch sessions", data: [] };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: [] };
+        }
     },
 
     getTutorProfile: async (): Promise<ApiResponse<Tutor>> => {
-        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, message: "Build Phase", data: null as any };
-        noStore();
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            noStore();
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/tutor/profile/me`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            cache: "no-store",
-        });
+            const res = await fetch(`${API_URL}/tutor/profile/me`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                cache: "no-store",
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to fetch profile", data: null as any };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to fetch profile", data: null as any };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: null as any };
+        }
     }
 };

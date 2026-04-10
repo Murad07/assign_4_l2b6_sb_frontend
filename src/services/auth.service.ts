@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { User } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -9,13 +8,10 @@ const AUTH_URL = `${CLEAN_API_URL}/auth`;
 
 export const AuthService = {
     getSession: async function () {
-        // Professional Safe Check: If we are in the build phase, skip cookie access to prevent build errors.
-        if (process.env.NEXT_PHASE === 'phase-production-build') {
-            return { data: null, error: { message: "Static Build Context" } };
-        }
-
+        // Professional Safe Check: If we are in the build phase or cookies() fails, return null.
         try {
             noStore();
+            const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
             const token = cookieStore.get("better-auth.session_token") ||
                 cookieStore.get("__Secure-better-auth.session_token");

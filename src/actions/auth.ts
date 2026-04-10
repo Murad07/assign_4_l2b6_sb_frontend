@@ -1,6 +1,5 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
@@ -28,17 +27,15 @@ export async function loginUser(data: any) {
             };
         }
 
-        // In a real Better Auth + Backend setup, we might need to forward Set-Cookie headers
         const setCookie = res.headers.get("Set-Cookie");
         const parsedToken = setCookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
-
-        // Better Auth typically returns token in result.token or result.session.token
         const tokenToUse = parsedToken || result.token || result.session?.token;
 
         if (tokenToUse) {
             const isProd = process.env.NODE_ENV === "production";
             const cookieName = isProd ? "better-auth.session_token" : "better-auth.session_token";
 
+            const { cookies } = await import("next/headers");
             (await cookies()).set(cookieName, tokenToUse, {
                 httpOnly: true,
                 secure: isProd,
@@ -47,7 +44,6 @@ export async function loginUser(data: any) {
                 maxAge: 60 * 60 * 24 * 7, // 1 week
             });
         }
-
 
         return { success: true, data: result.user, token: result.token };
     } catch (error: any) {
@@ -73,10 +69,7 @@ export async function registerUser(data: any) {
 
         const result = await res.json();
 
-        console.log("Registration response:", { status: res.status, ok: res.ok, result });
-
         if (!res.ok) {
-            // Extract error message from various possible API response formats
             const errorMessage =
                 result.message ||
                 result.error?.message ||
@@ -90,7 +83,6 @@ export async function registerUser(data: any) {
             };
         }
 
-        // Success response contains { token, user }
         return {
             success: true,
             data: result,
@@ -98,7 +90,6 @@ export async function registerUser(data: any) {
             user: result.user
         };
     } catch (error: any) {
-        console.error("Registration error:", error);
         return {
             success: false,
             error: error.message || "Network error. Please try again."
@@ -107,5 +98,10 @@ export async function registerUser(data: any) {
 }
 
 export async function logoutUser() {
-    (await cookies()).delete("better-auth.session_token");
+    try {
+        const { cookies } = await import("next/headers");
+        (await cookies()).delete("better-auth.session_token");
+    } catch (e) {
+        // Silently fail during build if analyzed
+    }
 }

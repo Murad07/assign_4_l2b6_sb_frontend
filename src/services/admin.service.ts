@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { ApiResponse, User } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -6,15 +5,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 
 export const AdminService = {
     getAllUsers: async (): Promise<ApiResponse<User[]>> => {
-        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, data: [] };
-        noStore();
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
-
-        if (!token) return { success: false, message: "Unauthorized", data: [] };
-
         try {
+            noStore();
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
+
+            if (!token) return { success: false, message: "Unauthorized", data: [] };
+
             const res = await fetch(`${API_URL}/admin/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -31,7 +30,7 @@ export const AdminService = {
             if (responseData.data && Array.isArray(responseData.data.data)) {
                 const users = responseData.data.data.map((user: any) => ({
                     ...user,
-                    isBlocked: user.status === "BANNED", // Map status to isBlocked
+                    isBlocked: user.status === "BANNED",
                     image: user.image || null,
                 }));
 
@@ -51,78 +50,91 @@ export const AdminService = {
     },
 
     updateUserStatus: async (userId: string, isBlocked: boolean): Promise<ApiResponse<User>> => {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/admin/users/${userId}/status`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            body: JSON.stringify({ status: isBlocked ? "BANNED" : "ACTIVE" }),
-        });
+            const res = await fetch(`${API_URL}/admin/users/${userId}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                body: JSON.stringify({ status: isBlocked ? "BANNED" : "ACTIVE" }),
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to update user status", data: null as any };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to update user status", data: null as any };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: null as any };
+        }
     },
 
-    // For Role updates if needed
     updateUserRole: async (userId: string, role: string): Promise<ApiResponse<User>> => {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
 
-        const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            body: JSON.stringify({ role: role }),
-        });
-        console.log('role res: ', res, role);
+            const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                body: JSON.stringify({ role: role }),
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to update user role", data: null as any };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to update user role", data: null as any };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: null as any };
+        }
     },
-    // Tutor Management
+
     getPendingTutors: async (): Promise<ApiResponse<any[]>> => {
-        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, data: [] };
-        noStore();
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            noStore();
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        if (!token) return { success: false, message: "Unauthorized", data: [] };
+            if (!token) return { success: false, message: "Unauthorized", data: [] };
 
-        const res = await fetch(`${API_URL}/tutor/admin/pending`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            cache: "no-store",
-        });
+            const res = await fetch(`${API_URL}/tutor/admin/pending`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                cache: "no-store",
+            });
 
-        if (!res.ok) return { success: false, message: "Failed to fetch pending tutors", data: [] };
-        return res.json();
+            if (!res.ok) return { success: false, message: "Failed to fetch pending tutors", data: [] };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: [] };
+        }
     },
 
     approveTutor: async (tutorId: string): Promise<ApiResponse<any>> => {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
-
-        if (!token) return { success: false, message: "Unauthorized", data: null as any };
-
         try {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
+
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
+
             const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/approve`, {
                 method: "PATCH",
                 headers: {
@@ -137,7 +149,6 @@ export const AdminService = {
             if (!res.ok) {
                 return { success: false, message: data.message || "Failed to approve tutor", data: null as any };
             }
-            // If the API returns the raw object without { success: true } wrapper
             if (data.success === undefined) {
                 return { success: true, message: "Tutor approved successfully", data: data };
             }
@@ -148,13 +159,14 @@ export const AdminService = {
     },
 
     rejectTutor: async (tutorId: string): Promise<ApiResponse<any>> => {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
-
-        if (!token) return { success: false, message: "Unauthorized", data: null as any };
-
         try {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
+
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
+
             const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/reject`, {
                 method: "PATCH",
                 headers: {
@@ -168,7 +180,6 @@ export const AdminService = {
             if (!res.ok) {
                 return { success: false, message: data.message || "Failed to reject tutor", data: null as any };
             }
-            // If the API returns the raw object without { success: true } wrapper
             if (data.success === undefined) {
                 return { success: true, message: "Tutor rejected successfully", data: data };
             }

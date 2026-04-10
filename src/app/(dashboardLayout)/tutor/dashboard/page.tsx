@@ -1,8 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TutorService } from "@/services/tutor.service";
 import { DollarSign, Users, CalendarCheck } from "lucide-react";
-
-export const dynamic = "force-dynamic";
 
 export default async function TutorDashboard() {
     let sessions: any[] = [];

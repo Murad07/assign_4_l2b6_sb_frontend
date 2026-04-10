@@ -1,32 +1,61 @@
-import { cookies } from "next/headers";
-import { ApiResponse, Review } from "@/types";
+import { Review, ApiResponse } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const ReviewService = {
     getTutorReviews: async (tutorId: string): Promise<ApiResponse<Review[]>> => {
-        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, data: [] };
-        noStore();
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        try {
+            noStore();
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
-        const res = await fetch(`${API_URL}/reviews/${tutorId}`, {
-            headers: {
+            const headers: Record<string, string> = {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
-                Cookie: `${tokenCookie?.name}=${token}`,
-            },
-            cache: "no-store",
-        });
+            };
 
-        // console.log('Review response:', res);
-        if (!res.ok) {
-            return { data: [], success: false, message: "Failed to fetch" };
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+                headers["Cookie"] = `${tokenCookie?.name}=${token}`;
+            }
+
+            const res = await fetch(`${API_URL}/review/tutor/${tutorId}`, {
+                headers,
+                cache: "no-store",
+            });
+
+            if (!res.ok) return { success: false, message: "Failed to fetch reviews", data: [] };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: [] };
         }
-        return res.json();
     },
 
+    createReview: async (reviewData: any): Promise<ApiResponse<Review>> => {
+        try {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const token = tokenCookie?.value;
 
+            if (!token) return { success: false, message: "Unauthorized", data: null as any };
+
+            const res = await fetch(`${API_URL}/review`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    Cookie: `${tokenCookie?.name}=${token}`,
+                },
+                body: JSON.stringify(reviewData),
+            });
+
+            if (!res.ok) return { success: false, message: "Failed to create review", data: null as any };
+            return res.json();
+        } catch (e) {
+            return { success: false, message: "Internal Error", data: null as any };
+        }
+    }
 };

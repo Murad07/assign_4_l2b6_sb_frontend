@@ -12,6 +12,8 @@ import { HomeFAQ } from "@/components/modules/home/home-faq"; // TS Server cache
 import { Newsletter } from "@/components/modules/home/newsletter";
 import { BlogHighlights } from "@/components/modules/home/blog-highlights";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   let featuredTutors: Tutor[] = [];
   let categories: Category[] = [];

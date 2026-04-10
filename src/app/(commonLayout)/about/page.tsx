@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GraduationCap, Users, ShieldCheck, Globe } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function AboutPage() {
     return (
         <div className="container mx-auto px-4 py-16 space-y-24">

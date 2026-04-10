@@ -22,8 +22,8 @@ export const TutorService = {
     },
 
     getFeaturedTutors: async (): Promise<ApiResponse<Tutor[]>> => {
-        const res = await fetch(`${API_URL}/tutor?sort=rating&limit=3`, {
-            next: { revalidate: 3600 },
+        const res = await fetch(`${API_URL}/tutor?sort=rating&limit=4`, {
+            cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch featured tutors");
         return res.json();

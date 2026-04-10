@@ -56,7 +56,9 @@ export function TutorCard({ tutor }: TutorCardProps) {
                 <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-bold text-foreground">{tutor.rating || "4.8"}</span>
+                        <span className="font-bold text-foreground">
+                            {tutor.rating ? Number(tutor.rating).toFixed(1) : "4.8"}
+                        </span>
                         <span>({tutor.totalReviews || 12} reviews)</span>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">

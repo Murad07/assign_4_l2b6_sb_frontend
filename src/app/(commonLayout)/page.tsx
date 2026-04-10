@@ -8,7 +8,7 @@ import { CategoryGrid } from "@/components/modules/home/category-grid";
 import { AnimatedSection } from "@/components/ui/animated-section";
 import { HowItWorks } from "@/components/modules/home/how-it-works";
 import { Statistics } from "@/components/modules/home/statistics";
-import { HomeFAQ } from "@/components/modules/home/home-faq";
+import { HomeFAQ } from "@/components/modules/home/home-faq"; // TS Server cache bust
 import { Newsletter } from "@/components/modules/home/newsletter";
 import { BlogHighlights } from "@/components/modules/home/blog-highlights";
 

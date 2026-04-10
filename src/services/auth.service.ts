@@ -13,31 +13,32 @@ export const AuthService = {
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const token = cookieStore.get("better-auth.session_token") ||
-                cookieStore.get("__Secure-better-auth.session_token");
 
-            // Identify current host to set the correct Origin
+            // Gather all cookies into a single string to forward to backend
+            const cookieString = cookieStore.getAll()
+                .map(c => `${c.name}=${c.value}`)
+                .join("; ");
+
             const { headers: nextHeaders } = await import("next/headers");
             const headerList = await nextHeaders();
             const host = headerList.get("host");
+            const userAgent = headerList.get("user-agent") || "";
             const protocol = host?.includes("localhost") ? "http" : "https";
             const currentOrigin = `${protocol}://${host}`;
 
-            if (!token) {
-                return { data: null, error: { message: "Session is missing." } };
+            if (!cookieString) {
+                return { data: null, error: { message: "No cookies found." } };
             }
 
-            // Send Headers
+            // High-Security Headers
             const headers: Record<string, string> = {
                 "Content-Type": "application/json",
-                "Cookie": `better-auth.session_token=${token.value}; __Secure-better-auth.session_token=${token.value}`,
-                "Authorization": `Bearer ${token.value}`,
+                "Cookie": cookieString,
                 "Origin": currentOrigin,
                 "Referer": currentOrigin,
+                "User-Agent": userAgent, // Essential for session consistency
+                "x-better-auth-origin": currentOrigin,
             };
-
-            // Helpful for Better Auth cross-domain
-            headers["x-better-auth-origin"] = currentOrigin;
 
             const res = await fetch(`${AUTH_URL}/me`, {
                 headers,

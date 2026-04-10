@@ -37,16 +37,23 @@ export async function loginUser(data: any) {
 
         if (tokenToUse) {
             const isProd = process.env.NODE_ENV === "production";
-            const cookieName = isProd ? "better-auth.session_token" : "better-auth.session_token";
+            const { cookies: getCookies } = await import("next/headers");
+            const cookieStore = await getCookies();
 
-            const { cookies } = await import("next/headers");
-            (await cookies()).set(cookieName, tokenToUse, {
+            const cookieOptions = {
                 httpOnly: true,
                 secure: isProd,
-                sameSite: isProd ? "none" : "lax",
+                sameSite: (isProd ? "none" : "lax") as "none" | "lax",
                 path: "/",
                 maxAge: 60 * 60 * 24 * 7, // 1 week
-            });
+            };
+
+            // Set both the standard and the Secure-prefixed version for production
+            cookieStore.set("better-auth.session_token", tokenToUse, cookieOptions);
+
+            if (isProd) {
+                cookieStore.set("__Secure-better-auth.session_token", tokenToUse, cookieOptions);
+            }
         }
 
         return { success: true, data: result.user, token: result.token };

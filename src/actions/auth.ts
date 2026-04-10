@@ -6,7 +6,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 
 export async function loginUser(data: any) {
     try {
-        const appOrigin = process.env.NEXT_PUBLIC_APP_URL || "https://assign-4-l2b6-sb-frontend.vercel.app";
+        const { headers } = await import("next/headers");
+        const headerList = await headers();
+        const host = headerList.get("host");
+        const protocol = host?.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
 
         const res = await fetch(`${API_URL}/auth/sign-in/email`, {
             method: "POST",
@@ -56,7 +60,12 @@ export async function loginUser(data: any) {
 
 export async function registerUser(data: any) {
     try {
-        const appOrigin = process.env.NEXT_PUBLIC_APP_URL || "https://assign-4-l2b6-sb-frontend.vercel.app";
+        const { headers } = await import("next/headers");
+        const headerList = await headers();
+        const host = headerList.get("host");
+        const protocol = host?.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
+
         const res = await fetch(`${API_URL}/auth/sign-up/email`, {
             method: "POST",
             headers: {

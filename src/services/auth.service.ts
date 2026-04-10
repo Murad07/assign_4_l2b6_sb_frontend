@@ -16,28 +16,28 @@ export const AuthService = {
             const token = cookieStore.get("better-auth.session_token") ||
                 cookieStore.get("__Secure-better-auth.session_token");
 
-            // console.log("AuthService: All Cookies:", cookieStore.getAll());
+            // Identify current host to set the correct Origin
+            const { headers: nextHeaders } = await import("next/headers");
+            const headerList = await nextHeaders();
+            const host = headerList.get("host");
+            const protocol = host?.includes("localhost") ? "http" : "https";
+            const currentOrigin = `${protocol}://${host}`;
 
             if (!token) {
                 return { data: null, error: { message: "Session is missing." } };
             }
 
-            // Send Headers - Include both standard and __Secure- prefix for production
-            const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+            // Send Headers
             const headers: Record<string, string> = {
                 "Content-Type": "application/json",
                 "Cookie": `better-auth.session_token=${token.value}; __Secure-better-auth.session_token=${token.value}`,
                 "Authorization": `Bearer ${token.value}`,
-                "Origin": appUrl,
-                "Referer": appUrl,
+                "Origin": currentOrigin,
+                "Referer": currentOrigin,
             };
 
             // Helpful for Better Auth cross-domain
-            if (appUrl) {
-                headers["x-better-auth-origin"] = appUrl;
-            }
-
-            // console.log("AuthService: Sending Headers to Backend:", headers);
+            headers["x-better-auth-origin"] = currentOrigin;
 
             const res = await fetch(`${AUTH_URL}/me`, {
                 headers,

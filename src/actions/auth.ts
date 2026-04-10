@@ -24,6 +24,10 @@ export async function loginUser(data: any) {
 
         const result = await res.json();
 
+        console.log("Login result:", JSON.stringify(result, null, 2));
+        console.log("Set-Cookie header:", res.headers.get("Set-Cookie"));
+
+
         if (!res.ok) {
             return {
                 success: false,
@@ -31,29 +35,20 @@ export async function loginUser(data: any) {
             };
         }
 
-        const setCookie = res.headers.get("Set-Cookie");
-        const parsedToken = setCookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
-        const tokenToUse = parsedToken || result.token || result.session?.token;
+        const setCookieHeader = res.headers.get("set-cookie"); // lowercase try করো
+        const parsedToken = setCookieHeader?.match(
+            /(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/
+        )?.[1];
 
-        if (tokenToUse) {
-            const isProd = process.env.NODE_ENV === "production";
-            const { cookies: getCookies } = await import("next/headers");
-            const cookieStore = await getCookies();
+        const tokenToUse = parsedToken
+            ?? result.token
+            ?? result.session?.token
+            ?? result.data?.token;
 
-            const cookieOptions = {
-                httpOnly: true,
-                secure: isProd,
-                sameSite: (isProd ? "none" : "lax") as "none" | "lax",
-                path: "/",
-                maxAge: 60 * 60 * 24 * 7, // 1 week
-            };
+        console.log("Token to use:", tokenToUse); // null হলে backend এর response structure ভুল
 
-            // Set both the standard and the Secure-prefixed version for production
-            cookieStore.set("better-auth.session_token", tokenToUse, cookieOptions);
-
-            if (isProd) {
-                cookieStore.set("__Secure-better-auth.session_token", tokenToUse, cookieOptions);
-            }
+        if (!tokenToUse) {
+            return { success: false, error: "No token received from server" };
         }
 
         return { success: true, data: result.user, token: result.token };

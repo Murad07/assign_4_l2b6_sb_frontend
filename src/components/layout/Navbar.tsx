@@ -17,6 +17,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ChevronDown, GraduationCap, Users, Info, Phone, Star, Search } from "lucide-react";
 
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+
 import { User } from "@/types";
 
 export default function Navbar({ user }: { user?: User | null }) {
@@ -89,6 +91,7 @@ export default function Navbar({ user }: { user?: User | null }) {
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <ThemeToggle />
                     {/* Desktop Auth Section */}
                     <div className="hidden md:flex items-center gap-4">
                         {user ? (

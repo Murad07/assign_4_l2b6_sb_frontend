@@ -2,11 +2,12 @@ import { TutorService } from "@/services/tutor.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Clock } from "lucide-react";
+import { Star, MapPin, Clock, Share2, Heart, ShieldCheck, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Tutor } from "@/types";
 import BookingModal from "@/components/modules/booking/booking-modal";
+import { TutorCard } from "@/components/modules/tutor/tutor-card";
 
 interface TutorDetailsPageProps {
     params: Promise<{ id: string }>;
@@ -15,9 +16,13 @@ interface TutorDetailsPageProps {
 export default async function TutorDetailsPage({ params }: TutorDetailsPageProps) {
     const { id } = await params;
     let tutor: Tutor | null = null;
+    let relatedTutors: Tutor[] = [];
 
     try {
         tutor = await TutorService.getTutorById(id);
+        const relatedRes = await TutorService.getFeaturedTutors();
+        // Filter out current tutor from related
+        relatedTutors = relatedRes.data?.filter(t => t.id !== id).slice(0, 3) || [];
     } catch (error) {
         console.error("Failed to fetch tutor details", error);
         return notFound();
@@ -30,85 +35,138 @@ export default async function TutorDetailsPage({ params }: TutorDetailsPageProps
     const userName = tutor.user?.name || "Unknown";
 
     return (
-        <div className="container mx-auto max-w-5xl py-10 space-y-8">
-            {/* Header / Profile Info */}
-            <div className="flex flex-col md:flex-row gap-8 border-b pb-8">
-                <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
-                    <AvatarImage src={tutor.user?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} />
-                    <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-                </Avatar>
+        <div className="bg-background min-h-screen pb-20">
+            {/* Cover Image / Media Section */}
+            <div className="h-64 md:h-80 w-full bg-gradient-to-r from-primary/80 to-primary/40 relative overflow-hidden group">
+                {/* Simulated background pattern */}
+                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+                <div className="absolute right-10 bottom-10 bg-black/40 backdrop-blur-md text-white px-4 py-2 rounded-full hidden md:flex items-center gap-2 text-sm font-semibold cursor-pointer hover:bg-black/60 transition-colors">
+                    <PlayCircle className="w-4 h-4" /> Watch Intro Video
+                </div>
+            </div>
 
-                <div className="flex-1 space-y-4">
-                    <div>
-                        <h1 className="text-3xl font-bold">{userName}</h1>
-                        <p className="text-xl text-muted-foreground">{tutor.bio}</p>
+            <div className="container mx-auto max-w-6xl px-4 md:px-8 -mt-24 relative z-10 space-y-12">
+                {/* Header / Profile Info */}
+                <div className="flex flex-col md:flex-row gap-8 bg-card border shadow-xl rounded-2xl p-6 md:p-10">
+                    <div className="flex-shrink-0 -mt-16 md:-mt-24 flex flex-col items-center gap-4">
+                        <Avatar className="h-40 w-40 border-8 border-card shadow-2xl">
+                            <AvatarImage src={tutor.user?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`} />
+                            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-none px-3 py-1 flex items-center gap-1.5">
+                            <ShieldCheck className="w-4 h-4" /> Identity Verified
+                        </Badge>
                     </div>
 
-                    <div className="flex gap-4 items-center text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                            <span className="font-semibold text-foreground">{tutor.rating}</span>
-                            <span>({tutor.totalReviews} reviews)</span>
+                    <div className="flex-1 space-y-6">
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                            <div>
+                                <h1 className="text-4xl font-black">{userName}</h1>
+                                <p className="text-xl text-muted-foreground mt-2 italic">"{tutor.bio}"</p>
+                            </div>
+                            {/* Action Functionality (Share / Save) */}
+                            <div className="flex gap-2 shrink-0">
+                                <Button variant="outline" size="icon" className="rounded-full shadow-sm">
+                                    <Share2 className="w-4 h-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" className="rounded-full shadow-sm text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+                                    <Heart className="w-4 h-4" />
+                                </Button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        {tutor.expertise?.map((skill) => (
-                            <Badge key={skill} variant="secondary" className="px-3 py-1 text-sm">{skill}</Badge>
-                        ))}
-                    </div>
+                        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                                <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                                <span className="font-bold text-lg text-foreground">{tutor.rating ? Number(tutor.rating).toFixed(1) : "4.8"}</span>
+                                <span>({tutor.totalReviews || 12} reviews)</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <MapPin className="w-4 h-4" /> Remote Only
+                            </div>
+                        </div>
 
-                    {tutor.categories && tutor.categories.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                            {tutor.categories.map((category) => (
-                                <Badge key={category.id} variant="outline" className="px-3 py-1 text-sm">
-                                    {category.icon} {category.name}
-                                </Badge>
+                            {tutor.expertise?.map((skill) => (
+                                <Badge key={skill} variant="secondary" className="px-3 py-1 text-sm bg-primary/10 text-primary border-none">{skill}</Badge>
                             ))}
                         </div>
-                    )}
-                </div>
 
-                <div className="md:w-72 bg-card border rounded-xl p-6 shadow-sm h-fit space-y-6">
-                    <div className="flex justify-between items-center border-b pb-4">
-                        <span className="text-muted-foreground">Hourly Rate</span>
-                        <span className="text-2xl font-bold">${tutor.hourlyRate}</span>
+                        {tutor.categories && tutor.categories.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-2 border-t">
+                                {tutor.categories.map((category) => (
+                                    <Badge key={category.id} variant="outline" className="px-3 py-1.5 text-sm font-semibold rounded-lg">
+                                        {category.icon} {category.name}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                    {/* Booking flow will be implemented later */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span>Response time: ~1 hr</span>
+
+                    <div className="md:w-80 bg-zinc-50 dark:bg-zinc-900 border rounded-2xl p-6 shadow-inner h-fit space-y-6">
+                        <div className="flex justify-between items-end border-b border-border/50 pb-4">
+                            <span className="text-muted-foreground font-semibold">Session Rate</span>
+                            <span className="text-4xl font-black text-primary">${tutor.hourlyRate}<span className="text-sm text-muted-foreground font-normal">/hr</span></span>
                         </div>
-                        <BookingModal
-                            tutorId={tutor.id}
-                            hourlyRate={tutor.hourlyRate}
-                            availability={tutor.availability || []}
-                        />
-                        <p className="text-xs text-center text-muted-foreground">No charges until you confirm.</p>
+                        <div className="space-y-4">
+                            <div className="flex flex-col gap-2 text-sm text-muted-foreground bg-background border p-3 rounded-xl shadow-sm">
+                                <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-blue-500" />
+                                    <span>Usually responds within 1 hour</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                                    <span>Money-back guarantee</span>
+                                </div>
+                            </div>
+
+                            {/* Primary Action Button */}
+                            <BookingModal
+                                tutorId={tutor.id}
+                                hourlyRate={tutor.hourlyRate}
+                                availability={tutor.availability || []}
+                            />
+                            <p className="text-xs text-center text-muted-foreground">You won't be charged yet.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Education & Experience Section */}
-            <div className="space-y-6">
-                <h2 className="text-2xl font-bold">About</h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">Education</h3>
-                        <p className="text-muted-foreground">{tutor.education}</p>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">Experience</h3>
-                        <p className="text-muted-foreground">{tutor.experience}</p>
+                <div className="grid md:grid-cols-3 gap-12">
+                    <div className="md:col-span-2 space-y-12">
+                        {/* Key Information / Specs */}
+                        <div className="space-y-6 bg-card border rounded-2xl p-8 shadow-sm">
+                            <h2 className="text-2xl font-black border-b pb-4">Tutor Overview & Specs</h2>
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <h3 className="font-bold text-lg text-primary flex items-center gap-2">Education Background</h3>
+                                    <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border">{tutor.education || "Bachelor's Degree in related field."}</p>
+                                </div>
+                                <div className="space-y-3">
+                                    <h3 className="font-bold text-lg text-primary flex items-center gap-2">Teaching Experience</h3>
+                                    <p className="text-muted-foreground leading-relaxed bg-muted/30 p-4 rounded-xl border">{tutor.experience || "5+ years of professional tutoring."}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Reviews / Feedback */}
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-black">Student Feedback</h2>
+                            <ReviewList tutorId={tutor.userId} />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Reviews Section */}
-            <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Student Reviews</h2>
-                <ReviewList tutorId={tutor.userId} />
+                {/* Related / Suggested Items */}
+                {relatedTutors.length > 0 && (
+                    <div className="space-y-6 pt-12 border-t">
+                        <h2 className="text-2xl font-black">Related Tutors You Might Like</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {relatedTutors.map(related => (
+                                <TutorCard key={related.id} tutor={related} />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

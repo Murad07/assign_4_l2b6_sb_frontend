@@ -36,10 +36,13 @@ export async function loginUser(data: any) {
         const tokenToUse = parsedToken || result.token || result.session?.token;
 
         if (tokenToUse) {
-            (await cookies()).set("better-auth.session_token", tokenToUse, {
+            const isProd = process.env.NODE_ENV === "production";
+            const cookieName = isProd ? "better-auth.session_token" : "better-auth.session_token";
+
+            (await cookies()).set(cookieName, tokenToUse, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
                 path: "/",
                 maxAge: 60 * 60 * 24 * 7, // 1 week
             });

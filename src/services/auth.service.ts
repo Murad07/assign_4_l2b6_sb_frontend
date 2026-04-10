@@ -10,7 +10,8 @@ export const AuthService = {
     getSession: async function () {
         try {
             const cookieStore = await cookies();
-            const token = cookieStore.get("better-auth.session_token");
+            const token = cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
 
             // console.log("AuthService: All Cookies:", cookieStore.getAll());
 
@@ -19,17 +20,18 @@ export const AuthService = {
             }
 
             // Send Headers - Include both standard and __Secure- prefix for production
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
             const headers: Record<string, string> = {
                 "Content-Type": "application/json",
-                "Cookie": `${token.name}=${token.value}; __Secure-${token.name}=${token.value}`,
+                "Cookie": `better-auth.session_token=${token.value}; __Secure-better-auth.session_token=${token.value}`,
                 "Authorization": `Bearer ${token.value}`,
-                "Origin": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-                "Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+                "Origin": appUrl,
+                "Referer": appUrl,
             };
 
             // Helpful for Better Auth cross-domain
-            if (process.env.NEXT_PUBLIC_APP_URL) {
-                headers["x-better-auth-origin"] = process.env.NEXT_PUBLIC_APP_URL;
+            if (appUrl) {
+                headers["x-better-auth-origin"] = appUrl;
             }
 
             // console.log("AuthService: Sending Headers to Backend:", headers);

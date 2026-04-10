@@ -12,6 +12,7 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_URL || "http://localhost:3000"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -58,6 +59,7 @@ export async function registerUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": process.env.NEXT_PUBLIC_APP_URL || process.env.FRONTEND_URL || "http://localhost:3000"
             },
             body: JSON.stringify(data),
             cache: "no-store",

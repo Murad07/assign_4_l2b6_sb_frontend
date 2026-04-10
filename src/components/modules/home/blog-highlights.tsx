@@ -21,6 +21,12 @@ const blogs = [
         date: "March 15, 2026",
         author: "Dr. Emily Smith",
         category: "Education"
+    },
+    {
+        title: "Mastering Soft Skills: Beyond Technical Knowledge",
+        date: "March 10, 2026",
+        author: "James Wilson",
+        category: "Career"
     }
 ];
 
@@ -35,7 +41,7 @@ export const BlogHighlights = () => {
                 <Link href="/about" className="text-primary font-bold hover:underline">Read All Articles →</Link>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {blogs.map((blog, i) => (
                     <Card key={i} className="group overflow-hidden border-none bg-secondary/20 hover:bg-secondary/40 transition-colors cursor-pointer">
                         <CardContent className="p-0">

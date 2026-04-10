@@ -71,7 +71,7 @@ export default async function Home() {
         </div>
 
         {featuredTutors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredTutors.map((tutor) => (
               <TutorCard key={tutor.id} tutor={tutor} />
             ))}

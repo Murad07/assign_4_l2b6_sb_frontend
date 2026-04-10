@@ -1,109 +1,110 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { TutorService } from "@/services/tutor.service";
 import { CategoryService } from "@/services/category.service";
 import { TutorCard } from "@/components/modules/tutor/tutor-card";
 import { Tutor, Category } from "@/types";
+import { AnimatedHero } from "@/components/modules/home/animated-hero";
+import { CategoryGrid } from "@/components/modules/home/category-grid";
+import { AnimatedSection } from "@/components/ui/animated-section";
 
 export default async function Home() {
   let featuredTutors: Tutor[] = [];
   let categories: Category[] = [];
 
   try {
-    const res = await TutorService.getFeaturedTutors();
-    featuredTutors = res.data || [];
+    const [tutorRes, categoryRes] = await Promise.all([
+      TutorService.getFeaturedTutors(),
+      CategoryService.getAllCategories()
+    ]);
+    featuredTutors = tutorRes.data || [];
+    categories = categoryRes.data || [];
   } catch (error) {
-    console.error("Failed to fetch featured tutors", error);
-  }
-
-  try {
-    const res = await CategoryService.getAllCategories();
-    categories = res.data || [];
-  } catch (error) {
-    console.error("Failed to fetch categories", error);
+    console.error("Failed to fetch initial data", error);
   }
 
   return (
-    <div className="flex flex-col gap-16 pb-10">
-      {/* 1. Hero Section */}
-      <section className="py-20 text-center space-y-6">
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-          Master New Skills with <span className="text-primary">Expert Tutors</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Connect with simplified expert tutors for personalized one-on-one learning sessions.
-          Programming, Languages, Music, and more.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/tutors">
-            <Button size="lg" className="rounded-full px-8"> Find a Tutor </Button>
-          </Link>
-          <Button size="lg" variant="outline" className="rounded-full px-8"> Become a Tutor </Button>
-        </div>
-      </section>
+    <div className="flex flex-col gap-24 pb-20">
+      {/* 1. Animated Hero Section */}
+      <AnimatedHero />
 
       {/* 2. Categories Section */}
-      <section>
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Explore Categories</h2>
-          <Link href="/tutors" className="text-primary hover:underline">View All</Link>
-        </div>
-        {categories.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/tutors?categoryId=${category.id}`}
-                className="p-6 border rounded-xl hover:shadow-md transition-shadow cursor-pointer bg-card text-center space-y-2"
-              >
-                <div className="text-4xl">{category.icon}</div>
-                <span className="font-semibold text-lg block">{category.name}</span>
-                {category.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">{category.description}</p>
-                )}
-              </Link>
-            ))}
+      <AnimatedSection className="container mx-auto px-4">
+        <div className="flex justify-between items-end mb-10">
+          <div className="space-y-2">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Explore Categories</h2>
+            <p className="text-muted-foreground">Find the perfect tutor based on your interest.</p>
           </div>
+          <Link href="/tutors" className="text-primary font-semibold hover:underline flex items-center gap-1">
+            View All Categories
+          </Link>
+        </div>
+
+        {categories.length > 0 ? (
+          <CategoryGrid categories={categories} />
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-20 bg-secondary/20 rounded-[2rem] text-muted-foreground border-2 border-dashed">
             No categories available at the moment.
           </div>
         )}
-      </section>
+      </AnimatedSection>
 
       {/* 3. Featured Tutors Section */}
-      <section>
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Featured Tutors</h2>
-          <Link href="/tutors" className="text-primary hover:underline">View All</Link>
+      <AnimatedSection className="container mx-auto px-4">
+        <div className="flex justify-between items-end mb-10">
+          <div className="space-y-2">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Featured Tutors</h2>
+            <p className="text-muted-foreground">Learn from the highest-rated experts on our platform.</p>
+          </div>
+          <Link href="/tutors" className="text-primary font-semibold hover:underline">View All Tutors</Link>
         </div>
+
         {featuredTutors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredTutors.map((tutor) => (
               <TutorCard key={tutor.id} tutor={tutor} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-20 bg-secondary/20 rounded-[2rem] text-muted-foreground border-2 border-dashed">
             No featured tutors available at the moment.
           </div>
         )}
-      </section>
+      </AnimatedSection>
 
       {/* 4. Testimonials/Trust Section */}
-      <section className="bg-muted/50 rounded-2xl p-10">
-        <h2 className="text-3xl font-bold text-center mb-10">Trusted by Students</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-background p-6 rounded-xl shadow-sm">
-            <p className="italic text-muted-foreground mb-4">"SkillBridge helped me ace my final exams. The tutors are incredibly knowledgeable and patient."</p>
-            <p className="font-semibold">- Alex M.</p>
-          </div>
-          <div className="bg-background p-6 rounded-xl shadow-sm">
-            <p className="italic text-muted-foreground mb-4">"I learned React in just 2 weeks! The booking process is so smooth."</p>
-            <p className="font-semibold">- Sarah K.</p>
+      <AnimatedSection className="container mx-auto px-4">
+        <div className="bg-primary text-primary-foreground rounded-[3rem] p-12 md:p-20 relative overflow-hidden">
+          {/* Decorative background circle */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/2 rounded-full" />
+
+          <div className="relative z-10 grid md:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl font-bold leading-tight">Join Thousands of <br />Happy Students</h2>
+              <p className="text-primary-foreground/80 text-lg leading-relaxed">
+                SkillBridge is more than just a tutoring site. It's a platform designed to foster growth,
+                confidence, and real-world skills through direct mentorship.
+              </p>
+              <Link href="/register" className="inline-block">
+                <button className="bg-white text-primary px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-colors">
+                  Get Started Today
+                </button>
+              </Link>
+            </div>
+
+            <div className="grid gap-6">
+              {[
+                { name: "Alex M.", text: "SkillBridge helped me ace my final exams. The tutors are incredibly knowledgeable." },
+                { name: "Sarah K.", text: "I learned React in just 2 weeks! The booking process is so smooth and transparent." }
+              ].map((testimonial, i) => (
+                <div key={i} className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 hover:bg-white/20 transition-colors">
+                  <p className="italic text-lg mb-4 leading-relaxed">"{testimonial.text}"</p>
+                  <p className="font-bold text-white">— {testimonial.name}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
     </div>
   );
 }

@@ -9,8 +9,13 @@ const AUTH_URL = `${CLEAN_API_URL}/auth`;
 
 export const AuthService = {
     getSession: async function () {
-        noStore();
+        // Professional Safe Check: If we are in the build phase, skip cookie access to prevent build errors.
+        if (process.env.NEXT_PHASE === 'phase-production-build') {
+            return { data: null, error: { message: "Static Build Context" } };
+        }
+
         try {
+            noStore();
             const cookieStore = await cookies();
             const token = cookieStore.get("better-auth.session_token") ||
                 cookieStore.get("__Secure-better-auth.session_token");

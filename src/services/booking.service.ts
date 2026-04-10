@@ -5,6 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 
 export const BookingService = {
     getUserBookings: async () => {
+        if (process.env.NEXT_PHASE === 'phase-production-build') return { data: [] };
         noStore();
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");
@@ -30,6 +31,7 @@ export const BookingService = {
     },
 
     getAllBookings: async () => {
+        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, data: [] };
         noStore();
         const cookieStore = await cookies();
         const tokenCookie = cookieStore.get("better-auth.session_token");

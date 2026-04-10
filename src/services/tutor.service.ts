@@ -31,6 +31,7 @@ export const TutorService = {
     },
 
     getMySessions: async (): Promise<ApiResponse<any[]>> => {
+        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, message: "Build Phase", data: [] };
         noStore();
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
@@ -52,6 +53,7 @@ export const TutorService = {
     },
 
     getTutorProfile: async (): Promise<ApiResponse<Tutor>> => {
+        if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, message: "Build Phase", data: null as any };
         noStore();
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();

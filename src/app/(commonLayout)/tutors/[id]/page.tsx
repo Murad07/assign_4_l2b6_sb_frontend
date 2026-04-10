@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { TutorService } from "@/services/tutor.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

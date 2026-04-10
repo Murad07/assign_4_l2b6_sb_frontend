@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { AuthService } from "@/services/auth.service";
 import { redirect } from "next/navigation";
 import { getMyTutorProfile } from "@/actions/tutor";

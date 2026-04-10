@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { CategoryService } from "@/services/category.service";
 import {
     Table,

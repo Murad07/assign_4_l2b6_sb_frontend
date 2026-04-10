@@ -12,7 +12,6 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -27,21 +26,22 @@ export async function loginUser(data: any) {
             };
         }
 
-        // In a real Better Auth + Backend setup, we might need to forward Set-Cookie headers
+        // Robustly extract the session token
         const setCookie = res.headers.get("Set-Cookie");
-        if (setCookie) {
-            const parsedToken = setCookie.match(/better-auth\.session_token=([^;]+)/)?.[1];
-            const tokenToUse = parsedToken || result.token;
+        const parsedToken = setCookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
 
+        // Better Auth can return token in various fields depending on configuration
+        const tokenToUse = parsedToken || result.token || result.session?.sessionToken || result.sessionToken;
+
+        if (tokenToUse) {
             (await cookies()).set("better-auth.session_token", tokenToUse, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
                 path: "/",
+                maxAge: 60 * 60 * 24 * 7, // 1 week
             });
         }
-
-        console.log("Login response result:", result);
 
         return { success: true, data: result.user };
     } catch (error: any) {
@@ -58,7 +58,6 @@ export async function registerUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -66,10 +65,7 @@ export async function registerUser(data: any) {
 
         const result = await res.json();
 
-        console.log("Registration response:", { status: res.status, ok: res.ok, result });
-
         if (!res.ok) {
-            // Extract error message from various possible API response formats
             const errorMessage =
                 result.message ||
                 result.error?.message ||
@@ -77,17 +73,27 @@ export async function registerUser(data: any) {
                 (typeof result.error === 'string' ? result.error : null) ||
                 "Registration failed";
 
-            return {
-                success: false,
-                error: errorMessage
-            };
+            return { success: false, error: errorMessage };
         }
 
-        // Success response contains { token, user }
+        // Auto-login after registration
+        const setCookie = res.headers.get("Set-Cookie");
+        const parsedToken = setCookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
+        const tokenToUse = parsedToken || result.token || result.session?.sessionToken || result.sessionToken;
+
+        if (tokenToUse) {
+            (await cookies()).set("better-auth.session_token", tokenToUse, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 7,
+            });
+        }
+
         return {
             success: true,
             data: result,
-            token: result.token,
             user: result.user
         };
     } catch (error: any) {

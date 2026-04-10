@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { User } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 const AUTH_URL = `${API_URL}/auth`;
 
 export const AuthService = {
@@ -10,38 +10,28 @@ export const AuthService = {
             const cookieStore = await cookies();
             const token = cookieStore.get("better-auth.session_token");
 
-            // console.log("AuthService: All Cookies:", cookieStore.getAll());
-
             if (!token) {
-                console.log("AuthService: Token cookie missing");
                 return { data: null, error: { message: "Session is missing." } };
             }
 
-            // Send Header
             const headers: Record<string, string> = {
                 Cookie: `${token.name}=${token.value}`,
                 Authorization: `Bearer ${token.value}`,
                 Origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
             };
 
-            // console.log("AuthService: Sending Headers to Backend:", headers);
-
             const res = await fetch(`${AUTH_URL}/me`, {
                 headers,
                 cache: "no-store",
             });
 
-            // console.log("AuthService: Backend Response Status:", res.status);
-
             if (!res.ok) {
-                // console.error("Fetch session failed:", res.status, res.statusText);
                 return { data: null, error: { message: "Failed to fetch session" } };
             }
 
             const session = await res.json();
-            // console.log("Session JSON Data:", session);
 
-            if (session === null) {
+            if (!session) {
                 return { data: null, error: { message: "Session is missing." } };
             }
 
@@ -54,6 +44,7 @@ export const AuthService = {
 
     getCurrentUser: async function (): Promise<User | null> {
         const { data } = await this.getSession();
-        return data?.data || null;
+        // Handle various response shapes: { data: user }, { user }, or direct user object
+        return data?.user || data?.data || data || null;
     }
 };

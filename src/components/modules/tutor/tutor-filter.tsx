@@ -14,6 +14,7 @@ import { Category } from "@/types";
 import { Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AiSearchDialog } from "@/components/modules/tutor/ai-search-dialog";
 
 interface TutorFilterProps {
     categories: Category[];
@@ -34,48 +35,62 @@ export function TutorFilter({ categories }: TutorFilterProps) {
 
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
+    // Sync external URL changes (like AI Search) to local state safely
+    useEffect(() => {
+        const urlSearch = searchParams.get("search") || "";
+        if (urlSearch !== searchTerm) setSearchTerm(urlSearch);
+
+        const urlCat = searchParams.get("categoryId") || "all";
+        if (urlCat !== category) setCategory(urlCat);
+
+        const urlRating = searchParams.get("minRating") || "all";
+        if (urlRating !== minRating) setMinRating(urlRating);
+
+        const urlSortBy = searchParams.get("sortBy")
+            ? `${searchParams.get("sortBy")}-${searchParams.get("sortOrder") || "desc"}`
+            : "createdAt-desc";
+        if (urlSortBy !== sortBy) setSortBy(urlSortBy);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
+
     const handleClearFilters = () => {
-        setSearchTerm("");
-        setCategory("all");
-        setSortBy("createdAt-desc");
-        setMinRating("all");
         router.push("?");
     };
 
+    // Push search term uniquely to avoid loops
     useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
+        const urlSearch = searchParams.get("search") || "";
+        if (debouncedSearchTerm === urlSearch) return; // Prevent pushing what's already there
 
+        const params = new URLSearchParams(searchParams.toString());
         if (debouncedSearchTerm) params.set("search", debouncedSearchTerm);
         else params.delete("search");
 
-        if (category && category !== "all") params.set("categoryId", category);
-        else params.delete("categoryId");
+        router.push(`?${params.toString()}`);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearchTerm]);
 
-        if (minRating && minRating !== "all") params.set("minRating", minRating);
-        else params.delete("minRating");
+    // Handlers for selects that immediately push to URL instead of relying on generic useEffect
+    const updateUrlParam = (key: string, value: string) => {
+        const params = new URLSearchParams(searchParams.toString());
 
-        if (sortBy && sortBy !== "createdAt-desc") {
-            const [sortField, sortOrder] = sortBy.split("-");
-            params.set("sortBy", sortField);
-            params.set("sortOrder", sortOrder);
+        if (key === "sortBy") {
+            if (value !== "createdAt-desc") {
+                const [sortField, sortOrder] = value.split("-");
+                params.set("sortBy", sortField);
+                params.set("sortOrder", sortOrder);
+            } else {
+                params.delete("sortBy");
+                params.delete("sortOrder");
+            }
         } else {
-            params.delete("sortBy");
-            params.delete("sortOrder");
+            if (value && value !== "all") params.set(key, value);
+            else params.delete(key);
         }
 
-        // Reset to page 1 on new filter
-        if (params.toString() !== searchParams.toString() && !params.get('page')) {
-            // We might not want to reset page on every minor change, but usually good practice.
-            // Leaving it to standard behavior for now.
-        }
+        router.push(`?${params.toString()}`);
+    };
 
-        const newSearch = params.toString();
-        const currentSearch = searchParams.toString();
-
-        if (newSearch !== currentSearch) {
-            router.push(`?${newSearch}`);
-        }
-    }, [debouncedSearchTerm, category, sortBy, minRating, router, searchParams]);
 
     return (
         <div className="flex flex-col md:flex-row gap-3 items-center w-full bg-card p-2 rounded-2xl border shadow-sm flex-wrap">
@@ -93,7 +108,7 @@ export function TutorFilter({ categories }: TutorFilterProps) {
             <div className="h-6 w-px bg-border hidden md:block"></div>
 
             <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(v) => { setCategory(v); updateUrlParam("categoryId", v); }}>
                     <SelectTrigger className="w-[140px] border-none bg-background shadow-none focus:ring-1 shrink-0">
                         <SelectValue placeholder="Category" />
                     </SelectTrigger>
@@ -107,7 +122,7 @@ export function TutorFilter({ categories }: TutorFilterProps) {
                     </SelectContent>
                 </Select>
 
-                <Select value={minRating} onValueChange={setMinRating}>
+                <Select value={minRating} onValueChange={(v) => { setMinRating(v); updateUrlParam("minRating", v); }}>
                     <SelectTrigger className="w-[130px] border-none bg-background shadow-none focus:ring-1 shrink-0">
                         <SelectValue placeholder="Rating" />
                     </SelectTrigger>
@@ -119,7 +134,7 @@ export function TutorFilter({ categories }: TutorFilterProps) {
                     </SelectContent>
                 </Select>
 
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={sortBy} onValueChange={(v) => { setSortBy(v); updateUrlParam("sortBy", v); }}>
                     <SelectTrigger className="w-[160px] border-none bg-background shadow-none focus:ring-1 shrink-0">
                         <SelectValue placeholder="Sort By" />
                     </SelectTrigger>
@@ -130,6 +145,8 @@ export function TutorFilter({ categories }: TutorFilterProps) {
                         <SelectItem value="hourlyRate-desc">Price: High to Low</SelectItem>
                     </SelectContent>
                 </Select>
+
+                <AiSearchDialog />
 
                 {(searchTerm || category !== "all" || minRating !== "all" || sortBy !== "createdAt-desc") && (
                     <Button

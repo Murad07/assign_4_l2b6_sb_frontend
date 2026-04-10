@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function AdminBookingsPage() {
+    noStore();
     let bookings = [];
     let totalBookings = 0;
 

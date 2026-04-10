@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
 import ReviewModal from "@/components/modules/review/ReviewModal";
 import BookingStatusAction from "@/components/modules/booking/BookingStatusAction";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function MyBookingsPage() {
+    noStore();
     let bookings = [];
     try {
         const res = await BookingService.getUserBookings();

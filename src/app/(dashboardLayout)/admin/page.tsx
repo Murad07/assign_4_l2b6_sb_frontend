@@ -5,8 +5,10 @@ import { AdminService } from "@/services/admin.service";
 import { BookingService } from "@/services/booking.service";
 import { TutorService } from "@/services/tutor.service";
 import { Users, GraduationCap, Calendar, ShieldCheck } from "lucide-react";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function AdminDashboard() {
+    noStore();
     let totalUsers = 0;
     let totalTutors = 0;
     let totalBookings = 0;

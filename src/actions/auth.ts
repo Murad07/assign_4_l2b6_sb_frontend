@@ -12,7 +12,6 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -58,7 +57,6 @@ export async function registerUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app"
             },
             body: JSON.stringify(data),
             cache: "no-store",

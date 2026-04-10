@@ -8,10 +8,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-
 export async function loginUser(data: any) {
     try {
         console.log("Login request data:", data);
+        const appOrigin = process.env.NEXT_PUBLIC_APP_URL || "https://assign-4-l2b6-sb-frontend.vercel.app";
+
         const res = await fetch(`${API_URL}/auth/sign-in/email`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": appOrigin
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -53,10 +56,12 @@ export async function loginUser(data: any) {
 
 export async function registerUser(data: any) {
     try {
+        const appOrigin = process.env.NEXT_PUBLIC_APP_URL || "https://assign-4-l2b6-sb-frontend.vercel.app";
         const res = await fetch(`${API_URL}/auth/sign-up/email`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Origin": appOrigin
             },
             body: JSON.stringify(data),
             cache: "no-store",

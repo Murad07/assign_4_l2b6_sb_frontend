@@ -11,22 +11,32 @@ export default function AuthBridgePage() {
     useEffect(() => {
         const bridge = async () => {
             try {
-                // ✅ Call OUR OWN Next.js API route (same domain = can read cookie)
-                const res = await fetch("/api/auth/session", {
+                // ✅ Get token from URL — backend appended it after Google OAuth
+                const params = new URLSearchParams(window.location.search);
+                const token = params.get("token");
+
+                if (!token) {
+                    console.error("Bridge: no token in URL");
+                    router.push("/login?error=no_token");
+                    return;
+                }
+
+                // ✅ Validate token and get user info via our Next.js API route
+                const res = await fetch(`/api/auth/session?token=${token}`, {
                     cache: "no-store",
                 });
 
                 const data = await res.json();
 
                 if (!res.ok || !data?.user) {
-                    console.error("Bridge: no valid session", data);
-                    router.push("/login?error=no_session");
+                    console.error("Bridge: invalid session", data);
+                    router.push("/login?error=invalid_session");
                     return;
                 }
 
-                // ✅ Sync the httpOnly cookie properly via server action
+                // ✅ Store as httpOnly cookie via server action
                 await syncSessionToken({
-                    "better-auth.session_token": data.token,
+                    "better-auth.session_token": token,
                 });
 
                 toast.success("Login successful!");

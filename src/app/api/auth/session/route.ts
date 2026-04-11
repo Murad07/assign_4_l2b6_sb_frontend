@@ -1,28 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 const BACKEND_URL = "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function GET(req: NextRequest) {
     try {
-        const cookieStore = await cookies();
+        // ✅ Token comes from the URL param set by the backend redirect
+        const token = req.nextUrl.searchParams.get("token");
 
-        // Read the session token that better-auth set on our frontend domain
-        const sessionToken =
-            cookieStore.get("better-auth.session_token")?.value ||
-            cookieStore.get("__Secure-better-auth.session_token")?.value;
-
-        if (!sessionToken) {
+        if (!token) {
             return NextResponse.json(
-                { error: "No session token found" },
+                { error: "No token in request" },
                 { status: 401 }
             );
         }
 
-        // Forward to our backend exchange endpoint
         const res = await fetch(`${BACKEND_URL}/auth/session-exchange`, {
             headers: {
-                "x-session-token": sessionToken,
+                "x-session-token": token,
                 "Content-Type": "application/json",
             },
             cache: "no-store",
@@ -32,7 +26,7 @@ export async function GET(req: NextRequest) {
 
         if (!res.ok || !data?.user) {
             return NextResponse.json(
-                { error: "Session invalid" },
+                { error: "Session invalid", detail: data },
                 { status: 401 }
             );
         }
@@ -41,7 +35,7 @@ export async function GET(req: NextRequest) {
             success: true,
             user: data.user,
             session: data.session,
-            token: sessionToken, // pass back so bridge can call syncSessionToken
+            token: data.token,
         });
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });

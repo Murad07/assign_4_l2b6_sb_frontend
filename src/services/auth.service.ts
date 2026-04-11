@@ -1,70 +1,105 @@
 import { User } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
-// Senior Engineer Note: Server-side checks must hit the backend DIRECTLY to avoid proxy loops.
-const API_URL = process.env.API_URL || "http://localhost:5000/api";
-const CLEAN_API_URL = API_URL.endsWith("/api") ? API_URL : `${API_URL}/api`;
-const AUTH_URL = `${CLEAN_API_URL}/auth`;
+// --- WHY WE USE THE PROXY ---
+// On the server we must call an absolute URL. We use the internal Next.js
+// rewrite proxy (/api/* → backend) rather than hitting the backend directly.
+// This guarantees the `Origin` header is the frontend's own origin which
+// better-auth has in its `trustedOrigins` list on the backend, making the
+// session cookie valid. Going directly to the Vercel backend URL with the
+// frontend origin set manually can hit CORS / SameSite restrictions.
+//
+// next.config.ts rewrites  /api/:path*  →  ${BACKEND_URL}/api/:path*
+// So /api/auth/get-session  →  https://.../api/auth/get-session  ✓
+
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const BACKEND_AUTH_URL = `${BACKEND_API_URL}/auth`;
+
+function getBaseUrl() {
+    // Priority:
+    // 1. NEXT_PUBLIC_APP_URL — explicitly set in .env or Vercel dashboard
+    // 2. VERCEL_URL — automatically injected by Vercel (no protocol prefix)
+    // 3. localhost fallback for local dev
+    if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
+    }
+    if (process.env.VERCEL_URL) {
+        return `https://${process.env.VERCEL_URL}`;
+    }
+    return "http://localhost:3000";
+}
 
 export const AuthService = {
+    /**
+     * Validates the session by calling better-auth's canonical `get-session`
+     * endpoint via the local Next.js rewrite proxy.
+     * Returns better-auth's { user, session } object on success.
+     */
     getSession: async function () {
-        // Professional Safe Check: If we are in the build phase or cookies() fails, return null.
         try {
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
 
-            // Gather all cookies into a single string to forward to backend
-            const cookieString = cookieStore.getAll()
-                .map(c => `${c.name}=${c.value}`)
-                .join("; ");
+            // Forward ALL cookies
+            let cookiesToForward = cookieStore.getAll()
+                .map((c) => `${c.name}=${c.value}`);
 
-            const { headers: nextHeaders } = await import("next/headers");
-            const headerList = await nextHeaders();
-            const host = headerList.get("x-forwarded-host") || headerList.get("host"); // Professional Vercel check
-            const userAgent = headerList.get("user-agent") || "";
-            const protocol = host?.includes("localhost") ? "http" : "https";
-            const currentOrigin = `${protocol}://${host}`;
+            // === SENIOR ENGINEER WORKAROUND ===
+            // When Frontend is on localhost (HTTP) and Backend is on Vercel (HTTPS),
+            // better-auth on the backend expects `__Secure-better-auth.session_token`.
+            // But browsers reject `__Secure-` cookies on HTTP.
+            // In `loginUser`, we stored the signed token from the `__Secure-` cookie
+            // under the plain name `better-auth.session_token`.
+            // Now we must "rename" it back to `__Secure-` for the backend to recognize it.
+            const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+            if (sessionToken && !cookieStore.get("__Secure-better-auth.session_token")) {
+                cookiesToForward.push(`__Secure-better-auth.session_token=${sessionToken}`);
+            }
+
+            const cookieString = cookiesToForward.join("; ");
 
             if (!cookieString) {
                 return { data: null, error: { message: "No cookies found." } };
             }
 
-            // High-Security Headers
-            const headers: Record<string, string> = {
-                "Content-Type": "application/json",
-                "Cookie": cookieString,
-                "Origin": currentOrigin,
-                "Referer": currentOrigin,
-                "User-Agent": userAgent, // Essential for session consistency
-                "x-better-auth-origin": currentOrigin,
-            };
+            const sessionUrl = `${BACKEND_AUTH_URL}/get-session`;
+            const currentOrigin = getBaseUrl();
 
-            const res = await fetch(`${AUTH_URL}/me`, {
-                headers,
+            const res = await fetch(sessionUrl, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cookie": cookieString,
+                    "Origin": currentOrigin,
+                },
                 cache: "no-store",
             });
 
             if (!res.ok) {
-                // console.error("Fetch session failed:", res.status, res.statusText);
                 return { data: null, error: { message: "Failed to fetch session" } };
             }
 
             const session = await res.json();
 
-            if (session === null || (session.success === false)) {
-                return { data: null, error: { message: "Session is missing." } };
+            // better-auth's get-session returns null when no session exists
+            if (!session || !session.user) {
+                return { data: null, error: { message: "No active session." } };
             }
 
             return { data: session, error: null };
         } catch (err) {
             console.error("Get Session Error:", err);
-            return { data: null, error: { message: "Something Went Wrong" } };
+            return { data: null, error: { message: "Something went wrong" } };
         }
     },
 
+    /**
+     * Returns the authenticated User object, or null if not logged in.
+     */
     getCurrentUser: async function (): Promise<User | null> {
         const { data } = await this.getSession();
-        return data?.data || null;
-    }
+        // better-auth returns { user: {...}, session: {...} }
+        return data?.user || null;
+    },
 };

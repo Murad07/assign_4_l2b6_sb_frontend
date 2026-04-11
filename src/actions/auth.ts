@@ -1,14 +1,12 @@
 "use server";
 
-import { redirect } from "next/navigation";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function loginUser(data: any) {
     try {
         const { headers } = await import("next/headers");
         const headerList = await headers();
-        const host = headerList.get("host");
+        const host = headerList.get("x-forwarded-host") || headerList.get("host");
         const protocol = host?.includes("localhost") ? "http" : "https";
         const appOrigin = `${protocol}://${host}`;
 
@@ -16,7 +14,7 @@ export async function loginUser(data: any) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": appOrigin
+                "Origin": appOrigin,
             },
             body: JSON.stringify(data),
             cache: "no-store",
@@ -24,46 +22,73 @@ export async function loginUser(data: any) {
 
         const result = await res.json();
 
-        console.log("Login result:", JSON.stringify(result, null, 2));
-        // Professional Cookie Forwarding
-        const setCookieHeader = res.headers.get("Set-Cookie");
-        if (setCookieHeader) {
-            const { cookies: getCookies } = await import("next/headers");
-            const cookieStore = await getCookies();
-            const isProd = process.env.NODE_ENV === "production";
-
-            // Split and iterate over each cookie sent by the backend
-            const cookiesToSet = setCookieHeader.split(/,(?=[^;]+=[^;]+)/);
-
-            cookiesToSet.forEach(cookieStr => {
-                const parts = cookieStr.split(";")[0].split("=");
-                const name = parts[0].trim();
-                const value = parts.slice(1).join("=").trim();
-
-                if (name && value) {
-                    cookieStore.set(name, value, {
-                        httpOnly: true,
-                        secure: isProd,
-                        sameSite: isProd ? "none" : "lax" as const,
-                        path: "/",
-                        maxAge: 60 * 60 * 24 * 7,
-                    });
-                }
-            });
-        }
-
+        // --- GUARD: return error BEFORE touching cookies if login failed ---
         if (!res.ok) {
             return {
                 success: false,
-                error: result.message || "Login failed"
+                error: result.message || result.error || "Login failed",
             };
+        }
+
+        // --- CORRECT multi-cookie forwarding using getSetCookie() ---
+        // res.headers.get("Set-Cookie") only returns the FIRST cookie.
+        // getSetCookie() returns ALL Set-Cookie values as an array (Node 18+).
+        const { cookies: getCookies } = await import("next/headers");
+        const cookieStore = await getCookies();
+        const isProd = process.env.NODE_ENV === "production";
+
+        // @ts-ignore — getSetCookie() exists in undici/Node 18+ fetch
+        const rawSetCookies: string[] = typeof res.headers.getSetCookie === "function"
+            ? res.headers.getSetCookie()
+            : [res.headers.get("Set-Cookie") || ""].filter(Boolean);
+
+        // Build a map: cookieName → value (last write wins).
+        // KEY INSIGHT: better-auth sends TWO session cookies:
+        //   - better-auth.session_token = raw token ID (not enough for validation)
+        //   - __Secure-better-auth.session_token = SIGNED token (required for validation)
+        // The __Secure- cookie requires HTTPS, so browsers drop it on HTTP localhost.
+        // Fix: extract the SIGNED value and store it under the base name too, so our
+        // server-side Cookie forwarding always sends what get-session can validate.
+        const cookieMap = new Map<string, string>();
+
+        for (const cookieStr of rawSetCookies) {
+            const nameValuePart = cookieStr.split(";")[0].trim();
+            const eqIdx = nameValuePart.indexOf("=");
+            if (eqIdx === -1) continue;
+
+            const rawName = nameValuePart.slice(0, eqIdx).trim();
+            const value = nameValuePart.slice(eqIdx + 1).trim();
+            if (!rawName || !value) continue;
+
+            cookieMap.set(rawName, value);
+
+            // If this is the __Secure- signed token, also store it under the base name.
+            // This ensures the signed value is forwarded on HTTP (dev) too.
+            if (rawName.startsWith("__Secure-")) {
+                const baseName = rawName.replace("__Secure-", "");
+                cookieMap.set(baseName, value); // overwrites the raw ID with the signed value
+            }
+        }
+
+        for (const [name, value] of cookieMap.entries()) {
+            // Skip __Secure- cookies on HTTP — browser would reject them anyway.
+            // We've already captured the value under the base name.
+            if (!isProd && name.startsWith("__Secure-")) continue;
+
+            cookieStore.set(name, value, {
+                httpOnly: true,
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 7, // 7 days
+            });
         }
 
         return { success: true, data: result.user, token: result.token };
     } catch (error: any) {
         return {
             success: false,
-            error: error.message || "Login failed"
+            error: error.message || "Login failed",
         };
     }
 }
@@ -119,7 +144,16 @@ export async function registerUser(data: any) {
 export async function logoutUser() {
     try {
         const { cookies } = await import("next/headers");
-        (await cookies()).delete("better-auth.session_token");
+        const cookieStore = await cookies();
+        // Delete ALL auth-related cookies to ensure a clean logout
+        const authCookies = [
+            "better-auth.session_token",
+            "accessToken",
+            "refreshToken",
+        ];
+        for (const name of authCookies) {
+            cookieStore.delete(name);
+        }
     } catch (e) {
         // Silently fail during build if analyzed
     }

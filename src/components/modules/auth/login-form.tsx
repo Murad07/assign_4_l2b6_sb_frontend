@@ -46,6 +46,12 @@ export default function LoginForm() {
             if (res.success) {
                 toast.success("Logged in successfully!");
 
+                // CRITICAL: router.refresh() forces Next.js to re-fetch all
+                // server components with the newly set cookies. Without this,
+                // the dashboard layout reads a stale (pre-login) RSC cache and
+                // redirects back to /login immediately.
+                router.refresh();
+
                 const user = res.data;
                 if (user?.role === "Student") {
                     router.push("/dashboard");

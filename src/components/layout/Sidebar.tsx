@@ -32,14 +32,34 @@ export default function Sidebar({ user }: { user?: User | null }) {
         { name: "Categories", href: "/admin/categories" },
     ];
 
+    const managerLinks = [
+        { name: "Overview", href: "/manager" },
+        { name: "Financials", href: "/manager/finance" },
+        { name: "Staff Management", href: "/manager/staff" },
+        { name: "Profile", href: "/manager/profile" },
+    ];
+
+    const moderatorLinks = [
+        { name: "Review Queue", href: "/moderator" },
+        { name: "Reported Content", href: "/moderator/reports" },
+        { name: "Verification", href: "/moderator/verify" },
+    ];
+
     let sidebarLinks = studentLinks; // Default to student
     if (userRole === "Tutor") sidebarLinks = tutorLinks;
     if (userRole === "Admin") sidebarLinks = adminLinks;
+    if (userRole === "Manager") sidebarLinks = managerLinks;
+    if (userRole === "Moderator") sidebarLinks = moderatorLinks;
 
     return (
         <aside className="w-64 border-r bg-muted/10 hidden md:block min-h-screen p-6 flex flex-col">
             <div className="mb-8 px-2">
                 <Link href="/" className="text-2xl font-bold text-primary">SkillBridge</Link>
+                {userRole && (
+                    <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">
+                        {userRole}
+                    </div>
+                )}
             </div>
             <nav className="space-y-2 flex-1">
                 {sidebarLinks.map((link) => (

@@ -14,7 +14,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    role: "Student" | "Tutor" | "Admin";
+    role: "Student" | "Tutor" | "Admin" | "Manager" | "Moderator";
     emailVerified?: boolean;
     image: string | null;
     phone?: string | null;

@@ -59,6 +59,10 @@ export default function LoginForm() {
                     router.push("/tutor/dashboard");
                 } else if (user?.role === "Admin") {
                     router.push("/admin");
+                } else if (user?.role === "Manager") {
+                    router.push("/manager");
+                } else if (user?.role === "Moderator") {
+                    router.push("/moderator");
                 } else {
                     router.push("/"); // Fallback
                 }
@@ -115,9 +119,11 @@ export default function LoginForm() {
                     <div className="space-y-3">
                         <label className="text-xs font-medium text-muted-foreground uppercase ml-1">I want to sign up as a:</label>
                         <Tabs defaultValue="Student" onValueChange={(v) => setSelectedRole(v as any)} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 h-11 p-1 bg-muted/50">
-                                <TabsTrigger value="Student" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full">Student</TabsTrigger>
-                                <TabsTrigger value="Tutor" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full">Tutor</TabsTrigger>
+                            <TabsList className="grid w-full grid-cols-4 h-11 p-1 bg-muted/50">
+                                <TabsTrigger value="Student" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full text-[10px] md:text-sm">Student</TabsTrigger>
+                                <TabsTrigger value="Tutor" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full text-[10px] md:text-sm">Tutor</TabsTrigger>
+                                <TabsTrigger value="Manager" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full text-[10px] md:text-sm">Manager</TabsTrigger>
+                                <TabsTrigger value="Moderator" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all h-full text-[10px] md:text-sm">Mod</TabsTrigger>
                             </TabsList>
                         </Tabs>
                     </div>
@@ -198,12 +204,12 @@ export default function LoginForm() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-3">
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-5 gap-1.5">
                             <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="h-9 text-xs border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors"
+                                className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
                                 onClick={() => handleDemoLogin("admin@skillbridge.com", "admin123")}
                                 disabled={form.formState.isSubmitting}
                             >
@@ -213,7 +219,7 @@ export default function LoginForm() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="h-9 text-xs border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors"
+                                className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
                                 onClick={() => handleDemoLogin("atikur@gmail.com", "atikur123")}
                                 disabled={form.formState.isSubmitting}
                             >
@@ -223,11 +229,37 @@ export default function LoginForm() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="h-9 text-xs border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors"
+                                className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
+                                onClick={() => {
+                                    form.setValue("email", "manager@skillbridge.com");
+                                    form.setValue("password", "manager123");
+                                }}
+                                disabled={form.formState.isSubmitting}
+                            >
+                                Mgr
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
+                                onClick={() => {
+                                    form.setValue("email", "mod@skillbridge.com");
+                                    form.setValue("password", "mod123");
+                                }}
+                                disabled={form.formState.isSubmitting}
+                            >
+                                Mod
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
                                 onClick={() => handleDemoLogin("mehir@gmail.com", "mehir123")}
                                 disabled={form.formState.isSubmitting}
                             >
-                                Student
+                                User
                             </Button>
                         </div>
                         <p className="text-[10px] text-center text-muted-foreground opacity-70">

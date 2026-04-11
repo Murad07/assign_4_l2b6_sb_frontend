@@ -34,7 +34,7 @@ const formSchema = z.object({
     password: z.string().min(6, {
         message: "Password must be at least 6 characters.",
     }),
-    role: z.enum(["Student", "Tutor"]),
+    role: z.enum(["Student", "Tutor", "Manager", "Moderator"]),
 });
 
 export default function RegisterForm() {
@@ -63,6 +63,10 @@ export default function RegisterForm() {
                     router.push("/dashboard");
                 } else if (user?.role === "Tutor") {
                     router.push("/tutor/dashboard");
+                } else if (user?.role === "Manager") {
+                    router.push("/manager");
+                } else if (user?.role === "Moderator") {
+                    router.push("/moderator");
                 } else {
                     router.push("/");
                 }
@@ -137,6 +141,8 @@ export default function RegisterForm() {
                                 <SelectContent>
                                     <SelectItem value="Student">Learn (Student)</SelectItem>
                                     <SelectItem value="Tutor">Teach (Tutor)</SelectItem>
+                                    <SelectItem value="Manager">Manage (Manager)</SelectItem>
+                                    <SelectItem value="Moderator">Moderate (Moderator)</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />

@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Advanced Tutor Booking Platform",
 };
 
+import AIChatbot from "@/components/shared/AIChatbot";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,6 +39,7 @@ export default function RootLayout({
         >
           {children}
           <ToasterProvider />
+          <AIChatbot />
         </ThemeProvider>
       </body>
     </html>

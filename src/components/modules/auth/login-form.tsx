@@ -245,7 +245,7 @@ export default function LoginForm() {
                                 className="h-8 text-[10px] border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors px-1"
                                 onClick={() => {
                                     form.setValue("email", "mod@skillbridge.com");
-                                    form.setValue("password", "mod123");
+                                    form.setValue("password", "modman123");
                                 }}
                                 disabled={form.formState.isSubmitting}
                             >

@@ -43,6 +43,7 @@ export default function Sidebar({ user }: { user?: User | null }) {
         { name: "Review Queue", href: "/moderator" },
         { name: "Reported Content", href: "/moderator/reports" },
         { name: "Verification", href: "/moderator/verify" },
+        { name: "Profile", href: "/moderator/profile" },
     ];
 
     let sidebarLinks = studentLinks; // Default to student

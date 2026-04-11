@@ -62,6 +62,12 @@ export default function Sidebar({ user }: { user?: User | null }) {
                 <button
                     onClick={async () => {
                         const { authClient } = await import("@/lib/auth-client");
+                        const { logoutUser: serverLogout } = await import("@/actions/auth");
+
+                        // 1. Clear custom cookies on server
+                        await serverLogout();
+
+                        // 2. Clear Better-Auth session on client & server
                         await authClient.signOut({
                             fetchOptions: {
                                 onSuccess: () => {

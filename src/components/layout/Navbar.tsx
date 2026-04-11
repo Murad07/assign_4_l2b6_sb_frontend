@@ -36,6 +36,12 @@ export default function Navbar({ user }: { user?: User | null }) {
 
     const handleLogout = async () => {
         const { authClient } = await import("@/lib/auth-client");
+        const { logoutUser: serverLogout } = await import("@/actions/auth");
+
+        // 1. Purge custom tokens (refreshToken, etc) via server action
+        await serverLogout();
+
+        // 2. Official sign out
         await authClient.signOut({
             fetchOptions: {
                 onSuccess: () => {

@@ -145,12 +145,39 @@ export async function logoutUser() {
     try {
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
-        // Delete ALL auth-related cookies to ensure a clean logout
+
+        // 1. Tell better-auth on the backend to invalidate the session
+        const { headers: getHeaders } = await import("next/headers");
+        const headerList = await getHeaders();
+        const host = headerList.get("x-forwarded-host") || headerList.get("host");
+        const protocol = host?.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
+
+        // Direct fetch to backend sign-out to be thorough
+        try {
+            await fetch(`${API_URL}/auth/sign-out`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Origin": appOrigin,
+                },
+                cache: "no-store",
+            });
+        } catch (err) {
+            // Ignore fetch errors during logout
+        }
+
+        // 2. Delete ALL possible auth-related cookies
+        // We include __Secure- versions because Vercel/HTTPS uses them.
         const authCookies = [
             "better-auth.session_token",
+            "__Secure-better-auth.session_token",
             "accessToken",
             "refreshToken",
+            "__Secure-accessToken",
+            "__Secure-refreshToken",
         ];
+
         for (const name of authCookies) {
             cookieStore.delete(name);
         }

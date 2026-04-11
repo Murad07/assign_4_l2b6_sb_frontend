@@ -5,6 +5,8 @@ import { AuthService } from "@/services/auth.service";
 
 import { redirect } from "next/navigation";
 
+import UserDropdown from "@/components/layout/UserDropdown";
+
 export default async function DashboardLayout({
     children,
 }: {
@@ -17,15 +19,18 @@ export default async function DashboardLayout({
     }
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-background">
             <Sidebar user={user} />
-            <main className="flex-1 p-8">
-                <header className="mb-8 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Dashboard</h1>
-                    {/* User Dropdown / Notifications could go here */}
-                    <div className="h-10 w-10 bg-muted rounded-full"></div>
+            <main className="flex-1 lg:max-w-7xl lg:mx-auto w-full">
+                <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b px-8 h-16 flex justify-between items-center transition-all duration-300">
+                    <h1 className="text-xl font-bold tracking-tight text-foreground/80 lowercase first-letter:uppercase">
+                        / {user.role} Dashboard
+                    </h1>
+                    <UserDropdown user={user} />
                 </header>
-                {children}
+                <div className="p-8">
+                    {children}
+                </div>
             </main>
         </div>
     );

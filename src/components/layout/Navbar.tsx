@@ -18,6 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Menu, ChevronDown, GraduationCap, Users, Info, Phone, Star, Search } from "lucide-react";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import UserDropdown from "@/components/layout/UserDropdown";
 
 import { User } from "@/types";
 
@@ -52,9 +53,22 @@ export default function Navbar({ user }: { user?: User | null }) {
     };
 
     const getDashboardLink = () => {
-        if (user?.role === "Tutor") return "/tutor/dashboard";
-        if (user?.role === "Admin") return "/admin";
+        const role = user?.role;
+        if (role === "Tutor") return "/tutor/dashboard";
+        if (role === "Admin") return "/admin";
+        if (role === "Manager") return "/manager";
+        if (role === "Moderator") return "/moderator";
         return "/dashboard";
+    };
+
+    const getProfileLink = () => {
+        const role = user?.role;
+        if (role === "Tutor") return "/tutor/profile";
+        if (role === "Manager") return "/manager/profile";
+        if (role === "Moderator") return "/moderator/profile";
+        // Admin might have a generic profile or use the student/staff pattern
+        if (role === "Admin") return "/admin/profile";
+        return "/dashboard/profile";
     };
 
     const NavItems = ({ isMobile = false }) => (
@@ -111,37 +125,7 @@ export default function Navbar({ user }: { user?: User | null }) {
                                 <Link href={getDashboardLink()}>
                                     <Button variant="outline" className="border-primary/20 hover:border-primary/50">Dashboard</Button>
                                 </Link>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
-                                            <Avatar className="h-9 w-9">
-                                                <AvatarImage src={user.image || ""} alt={user.name} />
-                                                <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                                        <DropdownMenuLabel className="font-normal">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none">{user.name}</p>
-                                                <p className="text-xs leading-none text-muted-foreground">
-                                                    {user.email}
-                                                </p>
-                                            </div>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => router.push(getDashboardLink())}>
-                                            Dashboard
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => router.push("/profile")}>
-                                            Profile Settings
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>
-                                            Log out
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                <UserDropdown user={user} />
                             </>
                         ) : (
                             <>
@@ -183,9 +167,12 @@ export default function Navbar({ user }: { user?: User | null }) {
                                                 </div>
                                             </div>
                                             <Link href={getDashboardLink()}>
-                                                <Button className="w-full">Dashboard</Button>
+                                                <Button className="w-full">Dashboard Overview</Button>
                                             </Link>
-                                            <Button variant="outline" className="w-full" onClick={handleLogout}>
+                                            <Link href={getProfileLink()}>
+                                                <Button variant="outline" className="w-full">Account Settings</Button>
+                                            </Link>
+                                            <Button variant="ghost" className="w-full text-destructive hover:text-destructive hover:bg-destructive/5" onClick={handleLogout}>
                                                 Log Out
                                             </Button>
                                         </div>

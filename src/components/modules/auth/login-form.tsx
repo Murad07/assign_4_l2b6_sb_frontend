@@ -78,27 +78,21 @@ export default function LoginForm() {
 
     async function handleGoogleLogin() {
         try {
-            // Using the local proxy route so cookies are shared automatically
-            const backendAuthUrl = "/api/auth";
+            const backendAuthUrl = "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api/auth";
             const callbackUrl = `${window.location.origin}/auth/bridge`;
 
-            // Set temporary role cookie for the bridge to read
+            // Set temporary role cookie for the bridge
             document.cookie = `pending_role=${selectedRole}; path=/; max-age=600`;
 
-            const res = await fetch(`${backendAuthUrl}/sign-in/social`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                // Same-origin request now, so credentials 'include' works perfectly
-                credentials: "include",
-                body: JSON.stringify({
-                    provider: "google",
-                    callbackURL: callbackUrl,
-                }),
-            });
+            /** 
+             * 🕵️‍♂️ SENIOR ENGINEER FIX:
+             * We use a direct GET link instead of fetch. 
+             * This makes the 'state' cookie First-Party, which prevents 
+             * 'state_mismatch' errors in ALL browsers/environments.
+             */
+            const loginUrl = `${backendAuthUrl}/login/social/google?callbackURL=${encodeURIComponent(callbackUrl)}`;
 
-            if (!res.ok) throw new Error("Failed to get Google login URL");
-            const data = await res.json();
-            if (data.url) window.location.href = data.url;
+            window.location.href = loginUrl;
         } catch (error) {
             console.error("Google Login Error:", error);
             toast.error("Failed to login with Google");

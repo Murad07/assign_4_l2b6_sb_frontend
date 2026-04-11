@@ -155,7 +155,7 @@ export async function logoutUser() {
 
         // Direct fetch to backend sign-out to be thorough
         try {
-            await fetch(`${API_URL}/auth/sign-out`, {
+            const res = await fetch(`${API_URL}/auth/sign-out`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -163,12 +163,33 @@ export async function logoutUser() {
                 },
                 cache: "no-store",
             });
+
+            // Forward any cookie-clearing instructions from the backend
+            const setCookies = typeof res.headers.getSetCookie === "function"
+                ? res.headers.getSetCookie()
+                : [res.headers.get("Set-Cookie") || ""].filter(Boolean);
+
+            for (const cookieStr of setCookies) {
+                const nameValuePart = cookieStr.split(";")[0].trim();
+                const eqIdx = nameValuePart.indexOf("=");
+                if (eqIdx === -1) continue;
+
+                const name = nameValuePart.slice(0, eqIdx).trim();
+                const value = nameValuePart.slice(eqIdx + 1).trim();
+
+                // If the backend sent an instruction to clear it (usually value=deleted or max-age=0)
+                // we apply that to our cookieStore.
+                cookieStore.set(name, value, {
+                    path: "/",
+                    maxAge: 0, // Force delete
+                    expires: new Date(0),
+                });
+            }
         } catch (err) {
             // Ignore fetch errors during logout
         }
 
-        // 2. Delete ALL possible auth-related cookies
-        // We include __Secure- versions because Vercel/HTTPS uses them.
+        // 2. Double-check: Force delete ALL possible auth-related cookies manually
         const authCookies = [
             "better-auth.session_token",
             "__Secure-better-auth.session_token",
@@ -179,9 +200,90 @@ export async function logoutUser() {
         ];
 
         for (const name of authCookies) {
-            cookieStore.delete(name);
+            cookieStore.set(name, "", { path: "/", maxAge: 0, expires: new Date(0) });
         }
     } catch (e) {
         // Silently fail during build if analyzed
+    }
+}
+
+export async function syncSessionToken(tokens: Record<string, string>) {
+    try {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const isProd = process.env.NODE_ENV === "production";
+
+        for (const [name, value] of Object.entries(tokens)) {
+            cookieStore.set(name, value, {
+                httpOnly: true,
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 7,
+            });
+
+            // Always ensure base name is set for localhost support
+            if (name.startsWith("__Secure-")) {
+                const baseName = name.replace("__Secure-", "");
+                cookieStore.set(baseName, value, {
+                    httpOnly: true,
+                    secure: isProd,
+                    sameSite: isProd ? "none" : "lax",
+                    path: "/",
+                    maxAge: 60 * 60 * 24 * 7,
+                });
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
+/**
+ * 🕵️‍♂️ Captures the actual signed tokens from the backend.
+ * This mimics the manual login perfectly.
+ */
+export async function captureBackendSession(browserCookies: string) {
+    try {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const isProd = process.env.NODE_ENV === "production";
+
+        const res = await fetch(`${API_URL}/auth/get-session`, {
+            headers: { "Cookie": browserCookies },
+            cache: "no-store",
+        });
+
+        const rawSetCookies: string[] = typeof res.headers.getSetCookie === "function"
+            ? res.headers.getSetCookie()
+            : [res.headers.get("Set-Cookie") || ""].filter(Boolean);
+
+        const tokens: Record<string, string> = {};
+
+        for (const cookieStr of rawSetCookies) {
+            const nameValuePart = cookieStr.split(";")[0].trim();
+            const eqIdx = nameValuePart.indexOf("=");
+            if (eqIdx === -1) continue;
+            const name = nameValuePart.slice(0, eqIdx).trim();
+            const value = nameValuePart.slice(eqIdx + 1).trim();
+            tokens[name] = value;
+        }
+
+        if (Object.keys(tokens).length > 0) {
+            await syncSessionToken(tokens);
+            return { success: true };
+        }
+
+        // Fallback: If no Set-Cookie, try JSON (as last resort)
+        const data = await res.json();
+        if (data?.session?.token) {
+            await syncSessionToken({ "better-auth.session_token": data.session.token });
+            return { success: true };
+        }
+
+        return { success: false };
+    } catch (e) {
+        return { success: false };
     }
 }

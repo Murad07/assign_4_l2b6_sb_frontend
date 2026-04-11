@@ -29,10 +29,26 @@ export const BookingService = {
 
             const cookieString = cookiesToForward.join("; ");
 
+            // Construction of origin for better-auth validation
+            const { headers: getHeaders } = await import("next/headers");
+            const headerList = await getHeaders();
+            const host = headerList.get("x-forwarded-host") || headerList.get("host");
+            const protocol = host?.includes("localhost") ? "http" : "https";
+            const appOrigin = `${protocol}://${host}`;
+
+            // === SENIOR ENGINEER TOKEN PICKER ===
+            // Identify the best token for the Bearer header. Priority: token > accessToken > session_token
+            const apiToken = cookieStore.get("token")?.value ||
+                cookieStore.get("accessToken")?.value ||
+                cookieStore.get("__Secure-accessToken")?.value ||
+                sessionToken;
+
             const res = await fetch(`${API_URL}/bookings`, {
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiToken}`,
                     "Cookie": cookieString,
+                    "Origin": appOrigin,
                 },
                 cache: "no-store",
             });
@@ -81,10 +97,25 @@ export const BookingService = {
 
             const cookieString = cookiesToForward.join("; ");
 
+            // Construction of origin for better-auth validation
+            const { headers: getHeaders } = await import("next/headers");
+            const headerList = await getHeaders();
+            const host = headerList.get("x-forwarded-host") || headerList.get("host");
+            const protocol = host?.includes("localhost") ? "http" : "https";
+            const appOrigin = `${protocol}://${host}`;
+
+            // === SENIOR ENGINEER TOKEN PICKER ===
+            const apiToken = cookieStore.get("token")?.value ||
+                cookieStore.get("accessToken")?.value ||
+                cookieStore.get("__Secure-accessToken")?.value ||
+                sessionToken;
+
             const res = await fetch(`${API_URL}/bookings/admin`, {
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiToken}`,
                     "Cookie": cookieString,
+                    "Origin": appOrigin,
                 },
                 cache: "no-store",
             });

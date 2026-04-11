@@ -78,17 +78,34 @@ export default function LoginForm() {
 
     async function handleGoogleLogin() {
         try {
-            await authClient.signIn.social({
-                provider: "google",
-                callbackURL: window.location.origin,
-                additionalData: {
-                    role: selectedRole,
-                }
+            // Using the local proxy route so cookies are shared automatically
+            const backendAuthUrl = "/api/auth";
+            const callbackUrl = `${window.location.origin}/auth/bridge`;
+
+            // Set temporary role cookie for the bridge to read
+            document.cookie = `pending_role=${selectedRole}; path=/; max-age=600`;
+
+            const res = await fetch(`${backendAuthUrl}/sign-in/social`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                // Same-origin request now, so credentials 'include' works perfectly
+                credentials: "include",
+                body: JSON.stringify({
+                    provider: "google",
+                    callbackURL: callbackUrl,
+                }),
             });
+
+            if (!res.ok) throw new Error("Failed to get Google login URL");
+            const data = await res.json();
+            if (data.url) window.location.href = data.url;
         } catch (error) {
+            console.error("Google Login Error:", error);
             toast.error("Failed to login with Google");
         }
     }
+
+
 
     return (
         <div className="w-full max-w-md">

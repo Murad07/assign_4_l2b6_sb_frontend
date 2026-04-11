@@ -76,10 +76,6 @@ export const AuthService = {
                 cache: "no-store",
             });
 
-            if (!res.ok) {
-                return { data: null, error: { message: "Failed to fetch session" } };
-            }
-
             const session = await res.json();
 
             // better-auth's get-session returns null when no session exists

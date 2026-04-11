@@ -7,18 +7,28 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill
 export async function getOverviewData() {
     try {
         const cookieStore = await cookies();
-        let tokenCookie = cookieStore.get("better-auth.session_token");
-        if (!tokenCookie) {
-            tokenCookie = cookieStore.get("__Secure-better-auth.session_token");
-        }
+
+        const tokenCookie =
+            cookieStore.get("better-auth.session_token") ||
+            cookieStore.get("__Secure-better-auth.session_token");
+
         const token = tokenCookie?.value;
+
+        if (!token) {
+            console.error("No session token found in cookies");
+            return null;
+        }
+
+        // ✅ Always decode before sending — stored value may be URL-encoded
+        const decodedToken = decodeURIComponent(token);
 
         const res = await fetch(`${API_URL}/users/overview`, {
             headers: {
-                Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
+                "Authorization": `Bearer ${decodedToken}`,
+                "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
+                "Content-Type": "application/json",
             },
-            next: { revalidate: 60 } // Cache for 1 minute
+            next: { revalidate: 60 },
         });
 
         const result = await res.json();

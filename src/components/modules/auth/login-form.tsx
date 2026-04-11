@@ -78,42 +78,23 @@ export default function LoginForm() {
 
     async function handleGoogleLogin() {
         try {
-            // 1. Initiate through Proxy to save 'state' cookie locally
-            const res = await fetch("/api/auth/sign-in/social", {
+            const backendAuthUrl = "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api/auth";
+            const callbackUrl = `${window.location.origin}/auth/bridge`;
+
+            const res = await fetch(`${backendAuthUrl}/sign-in/social`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({
                     provider: "google",
-                    callbackURL: "/dashboard", // Final destination
-                    // Pass role so backend saves it
-                    additionalData: { role: selectedRole }
+                    callbackURL: callbackUrl,
+                    // Role is handled by the Bridge after login
                 }),
             });
 
             if (!res.ok) throw new Error("Initiation failed");
             const data = await res.json();
-
-            if (data.url) {
-                const googleUrl = new URL(data.url);
-
-                /** 
-                 * 🕵️‍♂️ THE IDENTITY TUNNEL:
-                 * Force Google to return to Localhost instead of the Vercel Backend.
-                 * Since you added 'http://localhost:3000/api/auth/callback/google' 
-                 * to your Google Console, this is now 100% allowed and safe.
-                 */
-                const currentRedirect = googleUrl.searchParams.get("redirect_uri");
-                if (currentRedirect && currentRedirect.includes(".vercel.app")) {
-                    const localRedirect = currentRedirect.replace(
-                        /https:\/\/.*\.vercel\.app\/api\/auth/,
-                        `${window.location.origin}/api/auth`
-                    );
-                    googleUrl.searchParams.set("redirect_uri", localRedirect);
-                }
-
-                window.location.href = googleUrl.toString();
-            }
+            if (data.url) window.location.href = data.url;
         } catch (error) {
             console.error("Google Login Error:", error);
             toast.error("Failed to login with Google");

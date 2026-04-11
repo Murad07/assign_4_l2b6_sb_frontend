@@ -61,8 +61,14 @@ export default function Sidebar({ user }: { user?: User | null }) {
             <div className="border-t pt-4 mt-auto">
                 <button
                     onClick={async () => {
-                        await logoutUser();
-                        window.location.href = "/";
+                        const { authClient } = await import("@/lib/auth-client");
+                        await authClient.signOut({
+                            fetchOptions: {
+                                onSuccess: () => {
+                                    window.location.href = "/login";
+                                },
+                            },
+                        });
                     }}
                     className="flex w-full items-center px-4 py-2 rounded-md text-sm font-medium transition-colors hover:bg-muted text-foreground hover:text-destructive"
                 >

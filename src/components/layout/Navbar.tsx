@@ -35,8 +35,14 @@ export default function Navbar({ user }: { user?: User | null }) {
     ];
 
     const handleLogout = async () => {
-        await logoutUser();
-        window.location.href = "/";
+        const { authClient } = await import("@/lib/auth-client");
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    window.location.href = "/login";
+                },
+            },
+        });
     };
 
     const getDashboardLink = () => {

@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const BookingService = {
     getUserBookings: async () => {
@@ -12,22 +12,47 @@ export const BookingService = {
             const token = tokenCookie?.value;
 
             if (!token) {
-                throw new Error("Unauthorized");
+                return { data: [] }; // Don't throw, just return empty state
             }
 
-            const res = await fetch(`${API_URL}/bookings`, { // Verify endpoint. api_response says GET /api/bookings gets user's bookings.
+            // Forward ALL cookies
+            let cookiesToForward = cookieStore.getAll()
+                .map((c) => `${c.name}=${c.value}`);
+
+            // === SENIOR ENGINEER WORKAROUND ===
+            // When Frontend is on localhost (HTTP) and Backend is on Vercel (HTTPS),
+            // better-auth on the backend expects `__Secure-better-auth.session_token`.
+            const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+            if (sessionToken && !cookieStore.get("__Secure-better-auth.session_token")) {
+                cookiesToForward.push(`__Secure-better-auth.session_token=${sessionToken}`);
+            }
+
+            const cookieString = cookiesToForward.join("; ");
+
+            const res = await fetch(`${API_URL}/bookings`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Content-Type": "application/json",
+                    "Cookie": cookieString,
                 },
                 cache: "no-store",
             });
 
             if (!res.ok) {
-                throw new Error("Failed to fetch bookings");
+                console.error("Booking fetch failed status:", res.status);
+                return { data: [] };
             }
 
-            return res.json();
+            const responseData = await res.json();
+
+            // Backend might return { success: true, data: [...] } or { data: { data: [...] } }
+            if (responseData.data?.data && Array.isArray(responseData.data.data)) {
+                return { data: responseData.data.data };
+            }
+            if (Array.isArray(responseData.data)) {
+                return { data: responseData.data };
+            }
+
+            return responseData;
         } catch (error) {
             console.error("Error fetching user bookings:", error);
             return { data: [] };
@@ -45,10 +70,21 @@ export const BookingService = {
 
             if (!token) return { success: false, message: "Unauthorized", data: [] };
 
+            // Forward ALL cookies
+            let cookiesToForward = cookieStore.getAll()
+                .map((c) => `${c.name}=${c.value}`);
+
+            const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+            if (sessionToken && !cookieStore.get("__Secure-better-auth.session_token")) {
+                cookiesToForward.push(`__Secure-better-auth.session_token=${sessionToken}`);
+            }
+
+            const cookieString = cookiesToForward.join("; ");
+
             const res = await fetch(`${API_URL}/bookings/admin`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Content-Type": "application/json",
+                    "Cookie": cookieString,
                 },
                 cache: "no-store",
             });

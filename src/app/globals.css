@@ -111,7 +111,24 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Global cursor polish */
+  button,
+  [role="button"],
+  a,
+  input[type="submit"],
+  input[type="button"],
+  select {
+    cursor: pointer !important;
+  }
+
+  /* Optional: Smooth transitions for all interactive elements */
+  button,
+  a {
+    @apply transition-all duration-200 active:scale-[0.98];
   }
 }

@@ -19,9 +19,12 @@ export async function updateStudentProfile(data: any) {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": process.env.API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
+                "Origin": "https://assign-4-l2-b6-skill-bridge-backend.vercel.app",
                 Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
+                Cookie: cookieStore
+                    .getAll()
+                    .map((c) => `${c.name}=${c.value}`)
+                    .join("; "),
             },
             body: JSON.stringify(data),
         });

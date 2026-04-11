@@ -8,7 +8,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill
 export async function updateStaffProfile(data: any, path: string) {
     try {
         const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
+        let tokenCookie = cookieStore.get("better-auth.session_token");
+        if (!tokenCookie) {
+            tokenCookie = cookieStore.get("__Secure-better-auth.session_token");
+        }
         const token = tokenCookie?.value;
 
         if (!token) {
@@ -19,9 +22,12 @@ export async function updateStaffProfile(data: any, path: string) {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://localhost:3000",
+                "Origin": "https://assign-4-l2-b6-skill-bridge-backend.vercel.app",
                 Authorization: `Bearer ${token}`,
-                Cookie: `${tokenCookie?.name}=${token}`,
+                Cookie: cookieStore
+                    .getAll()
+                    .map((c) => `${c.name}=${c.value}`)
+                    .join("; "),
             },
             body: JSON.stringify(data),
         });

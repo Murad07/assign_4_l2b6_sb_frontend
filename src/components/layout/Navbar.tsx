@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, GraduationCap, Users, Info, Phone, Star, Search } from "lucide-react";
+import { Menu, ChevronDown, GraduationCap, Users, Info, Phone, Star, Search, Newspaper } from "lucide-react";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import UserDropdown from "@/components/layout/UserDropdown";
@@ -31,6 +31,7 @@ export default function Navbar({ user }: { user?: User | null }) {
         { name: "Find Tutors", href: "/tutors", icon: <Users className="w-4 h-4" /> },
         { name: "Become a Tutor", href: "/become-tutor", icon: <GraduationCap className="w-4 h-4" /> },
         { name: "Reviews", href: "/reviews", icon: <Star className="w-4 h-4" /> },
+        { name: "Blog", href: "/blog", icon: <Newspaper className="w-4 h-4" /> },
         { name: "About Us", href: "/about", icon: <Info className="w-4 h-4" /> },
         { name: "Contact", href: "/contact", icon: <Phone className="w-4 h-4" /> },
     ];

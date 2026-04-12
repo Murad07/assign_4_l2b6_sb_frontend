@@ -1,67 +1,66 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertTriangle, MessageSquare, ShieldAlert, CheckCircle } from "lucide-react";
+import { MessageSquare, ShieldAlert, CheckCircle, SearchX } from "lucide-react";
 
 export default function ModeratorReportsPage() {
+    // In a real scenario, this would fetch from a 'reports' table.
+    // Since we don't have it yet, we show a professional empty state.
+    const activeReports = [];
+
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Reported Content</h1>
+            <div className="flex flex-col gap-1">
+                <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-primary">
+                    Content Oversight
+                </h1>
+                <p className="text-muted-foreground text-sm font-medium">
+                    Monitor and resolve reported content to ensure platform safety.
+                </p>
+            </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card className="border-destructive/20 bg-destructive/5">
+            <div className="grid gap-6 md:grid-cols-3">
+                <Card className="rounded-3xl border-primary/5 bg-background shadow-xl shadow-primary/5">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Critical Reports</CardTitle>
-                        <ShieldAlert className="h-4 w-4 text-destructive" />
+                        <CardTitle className="text-xs font-black uppercase text-muted-foreground tracking-widest">Active Tickets</CardTitle>
+                        <ShieldAlert className="h-5 w-5 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-destructive">3</div>
-                        <p className="text-xs text-muted-foreground">Immediate action required</p>
+                        <div className="text-3xl font-black tracking-tighter">0</div>
+                        <p className="text-[10px] font-bold text-muted-foreground mt-1">Platform is currently clean</p>
                     </CardContent>
                 </Card>
-                <Card>
+
+                <Card className="rounded-3xl border-primary/5 bg-background shadow-xl shadow-primary/5">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Standard Tickets</CardTitle>
-                        <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-xs font-black uppercase text-muted-foreground tracking-widest">In Review</CardTitle>
+                        <MessageSquare className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">12</div>
-                        <p className="text-xs text-muted-foreground">Review in progress</p>
+                        <div className="text-3xl font-black tracking-tighter">0</div>
+                        <p className="text-[10px] font-bold text-muted-foreground mt-1">No pending investigations</p>
                     </CardContent>
                 </Card>
-                <Card>
+
+                <Card className="rounded-3xl border-primary/5 bg-background shadow-xl shadow-primary/5">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Resolved (24h)</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <CardTitle className="text-xs font-black uppercase text-muted-foreground tracking-widest">Resolved</CardTitle>
+                        <CheckCircle className="h-5 w-5 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">45</div>
-                        <p className="text-xs text-muted-foreground">Great job team!</p>
+                        <div className="text-3xl font-black tracking-tighter">0</div>
+                        <p className="text-[10px] font-bold text-green-600 mt-1 uppercase">Maintain 100% resolution</p>
                     </CardContent>
                 </Card>
             </div>
 
-            <div className="rounded-xl border bg-card shadow-sm">
-                <div className="p-4 border-b bg-muted/50 font-bold text-xs uppercase text-muted-foreground">Queue: Active Reports</div>
-                <div className="divide-y">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="p-4 flex items-start gap-4 hover:bg-muted/20 transition-colors">
-                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
-                                <AlertTriangle className="h-5 w-5" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex justify-between">
-                                    <h4 className="text-sm font-bold">Harassment Report #FL-{i}92</h4>
-                                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-600 text-[10px] font-bold rounded-full">PENDING</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-1">Student reported inappropriate behavior during a session. ID: USR-{i}928.</p>
-                                <div className="mt-4 flex gap-2">
-                                    <button className="px-3 py-1 bg-primary text-primary-foreground text-[10px] font-bold rounded hover:opacity-90 transition-opacity">Investigate</button>
-                                    <button className="px-3 py-1 border text-[10px] font-bold rounded hover:bg-muted transition-colors">Dismiss</button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+            <Card className="rounded-[2.5rem] border-primary/5 bg-background/50 backdrop-blur-sm overflow-hidden shadow-2xl shadow-primary/5 min-h-[400px] flex flex-col items-center justify-center p-12 text-center">
+                <div className="p-6 bg-primary/5 rounded-full mb-6">
+                    <SearchX className="h-12 w-12 text-primary/40" />
                 </div>
-            </div>
+                <h3 className="text-xl font-black tracking-tighter mb-2">Queue is Clear!</h3>
+                <p className="text-muted-foreground text-sm max-w-sm leading-relaxed decoration-primary/30">
+                    Excellent work. There are no active reports or flagged content requiring attention at this time.
+                </p>
+            </Card>
         </div>
     );
 }

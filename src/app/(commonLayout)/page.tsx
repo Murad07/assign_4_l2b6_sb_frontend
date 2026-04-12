@@ -11,20 +11,24 @@ import { Statistics } from "@/components/modules/home/statistics";
 import { HomeFAQ } from "@/components/modules/home/home-faq"; // TS Server cache bust
 import { Newsletter } from "@/components/modules/home/newsletter";
 import { BlogHighlights } from "@/components/modules/home/blog-highlights";
+import { getPublicStats } from "@/actions/public";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let featuredTutors: Tutor[] = [];
   let categories: Category[] = [];
+  let stats: any = null;
 
   try {
-    const [tutorRes, categoryRes] = await Promise.all([
+    const [tutorRes, categoryRes, publicStats] = await Promise.all([
       TutorService.getFeaturedTutors(),
-      CategoryService.getAllCategories()
+      CategoryService.getAllCategories(),
+      getPublicStats()
     ]);
     featuredTutors = tutorRes.data || [];
     categories = categoryRes.data || [];
+    stats = publicStats;
   } catch (error) {
     console.error("Failed to fetch initial data", error);
   }
@@ -60,7 +64,7 @@ export default async function Home() {
       <HowItWorks />
 
       {/* 5. Statistics Section (Visual Impact) */}
-      <Statistics />
+      <Statistics dynamicStats={stats} />
 
       {/* 6. Featured Tutors Section */}
       <AnimatedSection className="container mx-auto px-4 py-10">

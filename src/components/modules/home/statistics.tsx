@@ -1,13 +1,22 @@
 import { AnimatedSection } from "@/components/ui/animated-section";
 
-const stats = [
-    { value: "500+", label: "Expert Tutors" },
-    { value: "10,000+", label: "Happy Students" },
-    { value: "50,000+", label: "Sessions Completed" },
-    { value: "100+", label: "Subjects Covered" }
-];
+interface StatisticsProps {
+    dynamicStats?: {
+        tutors: string;
+        students: string;
+        sessions: string;
+        subjects: string;
+    };
+}
 
-export const Statistics = () => {
+export const Statistics = ({ dynamicStats }: StatisticsProps) => {
+    const stats = [
+        { value: dynamicStats?.tutors || "500+", label: "Expert Tutors" },
+        { value: dynamicStats?.students || "10,000+", label: "Happy Students" },
+        { value: dynamicStats?.sessions || "50,000+", label: "Sessions Completed" },
+        { value: dynamicStats?.subjects || "100+", label: "Subjects Covered" }
+    ];
+
     return (
         <section className="bg-secondary/30 py-20 overflow-hidden">
             <AnimatedSection className="container mx-auto px-4">

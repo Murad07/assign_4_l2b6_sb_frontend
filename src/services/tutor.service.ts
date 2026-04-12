@@ -5,12 +5,34 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill
 
 export const TutorService = {
     getAllTutors: async (params?: any): Promise<ApiResponse<Tutor[]>> => {
-        const queryString = params ? new URLSearchParams(params).toString() : "";
-        const res = await fetch(`${API_URL}/tutor?${queryString}`, {
-            cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch tutors");
-        return res.json();
+        try {
+            const queryString = params ? new URLSearchParams(params).toString() : "";
+            const res = await fetch(`${API_URL}/tutor?${queryString}`, {
+                cache: "no-store",
+            });
+            if (!res.ok) throw new Error("Failed to fetch tutors");
+
+            const result = await res.json();
+
+            // Normalize response for sendResponse format { success: true, data: { data, meta } }
+            if (result.success && result.data && result.data.data) {
+                return {
+                    success: true,
+                    data: result.data.data,
+                    pagination: {
+                        total: result.data.meta?.total || 0,
+                        page: result.data.meta?.page || 1,
+                        limit: result.data.meta?.limit || 10,
+                        totalPages: result.data.meta?.totalPages || 1,
+                    }
+                };
+            }
+
+            return result;
+        } catch (error: any) {
+            console.error("getAllTutors error:", error);
+            return { success: false, data: [], error: error.message };
+        }
     },
 
     getTutorById: async (id: string): Promise<Tutor> => {
@@ -18,15 +40,32 @@ export const TutorService = {
             cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch tutor");
-        return res.json();
+        const result = await res.json();
+        return result.data || result;
     },
 
     getFeaturedTutors: async (): Promise<ApiResponse<Tutor[]>> => {
-        const res = await fetch(`${API_URL}/tutor?sort=rating&limit=4`, {
-            cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch featured tutors");
-        return res.json();
+        try {
+            const res = await fetch(`${API_URL}/tutor?sort=rating&limit=4`, {
+                cache: "no-store",
+            });
+            if (!res.ok) throw new Error("Failed to fetch featured tutors");
+
+            const result = await res.json();
+
+            // Normalize response
+            if (result.success && result.data && result.data.data) {
+                return {
+                    success: true,
+                    data: result.data.data,
+                };
+            }
+
+            return result;
+        } catch (error) {
+            console.error("getFeaturedTutors error:", error);
+            return { success: false, data: [] };
+        }
     },
 
     getMySessions: async (): Promise<ApiResponse<any>> => {
@@ -53,7 +92,24 @@ export const TutorService = {
             });
 
             if (!res.ok) return { success: false, message: "Failed to fetch sessions", data: [] };
-            return res.json();
+
+            const result = await res.json();
+
+            // Normalize response
+            if (result.success && result.data && result.data.data) {
+                return {
+                    success: true,
+                    data: result.data.data,
+                    pagination: {
+                        total: result.data.meta?.total || 0,
+                        page: result.data.meta?.page || 1,
+                        limit: result.data.meta?.limit || 10,
+                        totalPages: result.data.meta?.totalPages || 1,
+                    }
+                };
+            }
+
+            return result;
         } catch (e) {
             console.error("getMySessions service error:", e);
             return { success: false, message: "Internal Error", data: [] };
@@ -84,7 +140,8 @@ export const TutorService = {
             });
 
             if (!res.ok) return { success: false, message: "Failed to fetch profile", data: null as any };
-            return res.json();
+            const result = await res.json();
+            return result;
         } catch (e) {
             console.error("getTutorProfile service error:", e);
             return { success: false, message: "Internal Error", data: null as any };

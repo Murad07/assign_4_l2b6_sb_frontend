@@ -12,8 +12,7 @@ export default async function TutorSessionsPage() {
     let sessions = [];
     try {
         const res = await TutorService.getMySessions();
-        // Since backend uses sendResponse, data is { data: sessions, total: ... }
-        sessions = res.data?.data || [];
+        sessions = res.data || [];
     } catch (error) {
         console.error("Failed to fetch sessions:", error);
     }

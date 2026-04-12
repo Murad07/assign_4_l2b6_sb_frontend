@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import React from "react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -42,6 +43,7 @@ import { User } from "@/types";
 export default function Navbar({ user }: { user?: User | null }) {
     const pathname = usePathname();
     const router = useRouter();
+    const [open, setOpen] = React.useState(false);
 
     const navLinks = [
         { name: "Home", href: "/", icon: <Home className="w-4 h-4" /> },
@@ -163,7 +165,7 @@ export default function Navbar({ user }: { user?: User | null }) {
 
                     {/* Mobile Menu Trigger */}
                     <div className="lg:hidden">
-                        <Sheet>
+                        <Sheet open={open} onOpenChange={setOpen}>
                             <SheetTrigger asChild>
                                 <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full hover:bg-muted active:scale-90 transition-all">
                                     <Menu className="h-5 w-5" />
@@ -202,10 +204,10 @@ export default function Navbar({ user }: { user?: User | null }) {
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <Link href={getDashboardLink()} className="w-full">
+                                                    <Link href={getDashboardLink()} className="w-full" onClick={() => setOpen(false)}>
                                                         <Button size="sm" className="w-full text-xs font-bold h-9">Dashboard</Button>
                                                     </Link>
-                                                    <Link href={getProfileLink()} className="w-full">
+                                                    <Link href={getProfileLink()} className="w-full" onClick={() => setOpen(false)}>
                                                         <Button size="sm" variant="outline" className="w-full text-xs font-bold h-9">Profile</Button>
                                                     </Link>
                                                 </div>
@@ -220,6 +222,7 @@ export default function Navbar({ user }: { user?: User | null }) {
                                                     <Link
                                                         key={link.href}
                                                         href={link.href}
+                                                        onClick={() => setOpen(false)}
                                                         className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all group ${pathname === link.href
                                                             ? "bg-primary/10 text-primary font-bold shadow-sm shadow-primary/5"
                                                             : "hover:bg-muted font-medium"
@@ -242,7 +245,10 @@ export default function Navbar({ user }: { user?: User | null }) {
                                                 {["Mathematics", "Programming", "Science", "Languages"].map((cat) => (
                                                     <button
                                                         key={cat}
-                                                        onClick={() => router.push(`/tutors?category=${cat.toLowerCase()}`)}
+                                                        onClick={() => {
+                                                            router.push(`/tutors?category=${cat.toLowerCase()}`);
+                                                            setOpen(false);
+                                                        }}
                                                         className="px-4 py-3 bg-muted/40 hover:bg-primary/5 hover:text-primary border border-transparent hover:border-primary/20 rounded-xl text-sm font-bold transition-all text-left flex items-center justify-between"
                                                     >
                                                         {cat}
@@ -268,10 +274,10 @@ export default function Navbar({ user }: { user?: User | null }) {
                                             </Button>
                                         ) : (
                                             <div className="grid grid-cols-2 gap-3 pb-2">
-                                                <Link href="/login" className="w-full">
+                                                <Link href="/login" className="w-full" onClick={() => setOpen(false)}>
                                                     <Button variant="outline" className="w-full h-12 font-bold rounded-xl border-primary/20">Log In</Button>
                                                 </Link>
-                                                <Link href="/register" className="w-full">
+                                                <Link href="/register" className="w-full" onClick={() => setOpen(false)}>
                                                     <Button className="w-full h-12 font-black rounded-xl shadow-lg shadow-primary/20">Join Now</Button>
                                                 </Link>
                                             </div>

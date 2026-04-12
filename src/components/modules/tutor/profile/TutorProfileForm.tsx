@@ -19,8 +19,9 @@ import { toast } from "sonner";
 import { updateTutorProfile, createTutorProfile } from "@/actions/tutor";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { generateTutorBio } from "@/actions/ai-bio";
 import {
     Command,
     CommandEmpty,
@@ -54,6 +55,7 @@ interface TutorProfileFormProps {
 export default function TutorProfileForm({ tutor, categories }: TutorProfileFormProps) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [isGeneratingBio, setIsGeneratingBio] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,6 +68,33 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
             categoryIds: tutor?.categories?.map(c => c.id) || [],
         },
     });
+
+    async function handleGenerateBio() {
+        const currentBio = form.getValues("bio");
+        const expertiseStr = form.getValues("expertise");
+        const expertise = expertiseStr.split(",").map(s => s.trim()).filter(s => s.length > 0);
+
+        if (!currentBio && expertise.length === 0) {
+            toast.error("Please provide some rough notes or expertise first so AI has context!");
+            return;
+        }
+
+        try {
+            setIsGeneratingBio(true);
+            const res = await generateTutorBio(currentBio, expertise);
+
+            if (res.success && res.data) {
+                form.setValue("bio", res.data, { shouldValidate: true });
+                toast.success("Bio generated and polished!");
+            } else {
+                toast.error(res.error || "Failed to generate bio");
+            }
+        } catch (error) {
+            toast.error("An error occurred while generating your bio.");
+        } finally {
+            setIsGeneratingBio(false);
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -113,10 +142,28 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
                             name="bio"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Bio</FormLabel>
+                                    <div className="flex items-center justify-between">
+                                        <FormLabel>Bio</FormLabel>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 gap-2 text-primary hover:text-primary hover:bg-primary/10 text-xs font-bold"
+                                            onClick={handleGenerateBio}
+                                            disabled={isGeneratingBio}
+                                        >
+                                            {isGeneratingBio ? (
+                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="h-3 w-3" />
+                                            )}
+                                            {isGeneratingBio ? "Polishing..." : "Magic Bio"}
+                                        </Button>
+                                    </div>
                                     <FormControl>
-                                        <Textarea placeholder="Tell students about yourself..." className="min-h-[100px]" {...field} />
+                                        <Textarea placeholder="Tell students about yourself (or enter rough notes and use 'Magic Bio')..." className="min-h-[120px] transition-all focus:min-h-[150px]" {...field} />
                                     </FormControl>
+                                    <FormDescription>Describe your teaching style and background.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

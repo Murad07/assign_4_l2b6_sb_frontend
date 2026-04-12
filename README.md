@@ -34,39 +34,44 @@ To access the Admin Dashboard features:
 - **Email:** `admin@skillbridge.com`
 - **Password:** `admin123`
 
-
 ---
 
 ## ✨ Key Features
 
-### 🌍 Public
-- **Tutor Discovery:** Browse and search tutors by subject, rating, and price.
-- **Detailed Profiles:** View comprehensive tutor profiles including experience and reviews.
-- **Landing Page:** Engaging homepage showcasing featured tutors.
+### 🤖 AI-Powered Intelligence
+- **AI Assistant Search:** Advanced search capabilities on the Tutor Selection page to find the perfect match using natural language.
+- **AI Tutor Bot:** Interactive AI chatbot available throughout the platform to answer queries and guide users.
+- **AI profile Bio Generator:** Smart bio generation tool for tutors to transform rough notes into professional, platform-ready descriptions.
 
-### 👨‍🎓 Student
-- **Session Management:** Book, view, and manage tutoring sessions.
-- **Feedback:** Leave reviews and ratings for tutors.
-- **Personalized Dashboard:** Track bookings and history.
+### 🌍 Public & Platform
+- **Tutor Discovery:** Browse and search tutors by subject, rating, price, and expertise.
+- **Dynamic Platform Stats:** Real-time metrics showing total tutors, active students, and successful sessions.
+- **Premium UI/UX:** Fully responsive design with Dark Mode support, glassmorphism effects, and a professional mobile drawer menu.
 
-### 👨‍🏫 Tutor
-- **Profile Management:** Create and update professional profiles.
-- **Availability Control:** Set and manage specific time slots for teaching.
-- **Session Tracking:** Monitor upcoming and completed sessions.
+### 👨‍🎓 Student Features
+- **Seamless Booking:** Interactive booking system with real-time availability validation.
+- **Reliable Auth:** Hybrid session bridging for Google OAuth and Email login ensuring persistence across Vercel deployments.
+- **Feedback System:** Public review and rating system for verified tutoring sessions.
 
-### 🛡️ Admin
-- **User Management:** Oversee all student and tutor accounts (ban/unban).
-- **Content Moderation:** Manage categories and oversee booking activities.
-- **Analytics:** View platform statistics and booking overviews.
+### 👨‍🏫 Tutor Features
+- **Professional Profiles:** Comprehensive tools to manage expertise, bio, and educational background.
+- **Availability Management:** Granular control over teaching slots and session schedules.
+- **Dashboard Monitoring:** Centralized view for managing bookings and student interactions.
+
+### 🛡️ Admin & Analytics
+- **User Governance:** Full control over student and tutor accounts, including approval workflows for new tutors.
+- **Content Operations:** Manage categories, subjects, and oversee system-wide activities.
+- **Insightful Analytics:** Data-driven overview of platform performance and growth.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 15+, React, Tailwind CSS, Lucide React, Sonner
-- **Backend:** Node.js, Express, TypeScript
+- **Frontend:** Next.js 15+ (App Router), React, Tailwind CSS, Lucide React, Sonner (Toast)
+- **Backend:** Node.js, Express, TypeScript, Zod (Validation)
 - **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** Better-Auth (Supports Email & Google OAuth)
+- **Authentication:** Better-Auth (Optimized for Production/Vercel with Dual-Cookie Strategy)
+- **AI Integration:** Google Gemini / Custom AI Logic
 - **Deployment:** Vercel (Frontend & Backend)
 
 ---

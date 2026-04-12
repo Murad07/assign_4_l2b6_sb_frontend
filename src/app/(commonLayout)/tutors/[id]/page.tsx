@@ -180,6 +180,7 @@ async function ReviewList({ tutorId }: { tutorId: string }) {
     let reviews: any[] = [];
     try {
         const res = await ReviewService.getTutorReviews(tutorId);
+        console.log("DEBUG: ReviewService result for tutorId", tutorId, ":", JSON.stringify(res, null, 2));
         reviews = res.data || [];
     } catch (e) {
         console.error("Failed to fetch reviews", e);

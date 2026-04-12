@@ -1,121 +1,71 @@
+import { ApiResponse } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const BookingService = {
-    getUserBookings: async () => {
+    getUserBookings: async (): Promise<ApiResponse<any[]>> => {
         try {
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
+
             const token = tokenCookie?.value;
 
-            if (!token) {
-                return { data: [] }; // Don't throw, just return empty state
-            }
+            if (!token) return { success: false, data: [] };
 
-            // Forward ALL cookies
-            let cookiesToForward = cookieStore.getAll()
-                .map((c) => `${c.name}=${c.value}`);
-
-            // === SENIOR ENGINEER WORKAROUND ===
-            // When Frontend is on localhost (HTTP) and Backend is on Vercel (HTTPS),
-            // better-auth on the backend expects `__Secure-better-auth.session_token`.
-            const sessionToken = cookieStore.get("better-auth.session_token")?.value;
-            if (sessionToken && !cookieStore.get("__Secure-better-auth.session_token")) {
-                cookiesToForward.push(`__Secure-better-auth.session_token=${sessionToken}`);
-            }
-
-            const cookieString = cookiesToForward.join("; ");
-
-            // Construction of origin for better-auth validation
-            const { headers: getHeaders } = await import("next/headers");
-            const headerList = await getHeaders();
-            const host = headerList.get("x-forwarded-host") || headerList.get("host");
-            const protocol = host?.includes("localhost") ? "http" : "https";
-            const appOrigin = `${protocol}://${host}`;
-
-            // === SENIOR ENGINEER TOKEN PICKER ===
-            // Identify the best token for the Bearer header. Priority: token > accessToken > session_token
-            const apiToken = cookieStore.get("token")?.value ||
-                cookieStore.get("accessToken")?.value ||
-                cookieStore.get("__Secure-accessToken")?.value ||
-                sessionToken;
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/bookings`, {
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiToken}`,
-                    "Cookie": cookieString,
-                    "Origin": appOrigin,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 cache: "no-store",
             });
 
-            if (!res.ok) {
-                console.error("Booking fetch failed status:", res.status);
-                return { data: [] };
-            }
+            if (!res.ok) return { success: false, data: [] };
 
             const responseData = await res.json();
 
-            // Backend might return { success: true, data: [...] } or { data: { data: [...] } }
-            if (responseData.data?.data && Array.isArray(responseData.data.data)) {
-                return { data: responseData.data.data };
-            }
-            if (Array.isArray(responseData.data)) {
-                return { data: responseData.data };
+            // Normalize response
+            if (responseData.success && responseData.data && responseData.data.data) {
+                return {
+                    success: true,
+                    data: responseData.data.data,
+                    pagination: responseData.data.meta,
+                };
             }
 
             return responseData;
         } catch (error) {
             console.error("Error fetching user bookings:", error);
-            return { data: [] };
+            return { success: false, data: [] };
         }
     },
 
-    getAllBookings: async () => {
+    getAllBookings: async (): Promise<ApiResponse<any[]>> => {
         try {
-            if (process.env.NEXT_PHASE === 'phase-production-build') return { success: false, data: [] };
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
+
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: [] };
 
-            // Forward ALL cookies
-            let cookiesToForward = cookieStore.getAll()
-                .map((c) => `${c.name}=${c.value}`);
-
-            const sessionToken = cookieStore.get("better-auth.session_token")?.value;
-            if (sessionToken && !cookieStore.get("__Secure-better-auth.session_token")) {
-                cookiesToForward.push(`__Secure-better-auth.session_token=${sessionToken}`);
-            }
-
-            const cookieString = cookiesToForward.join("; ");
-
-            // Construction of origin for better-auth validation
-            const { headers: getHeaders } = await import("next/headers");
-            const headerList = await getHeaders();
-            const host = headerList.get("x-forwarded-host") || headerList.get("host");
-            const protocol = host?.includes("localhost") ? "http" : "https";
-            const appOrigin = `${protocol}://${host}`;
-
-            // === SENIOR ENGINEER TOKEN PICKER ===
-            const apiToken = cookieStore.get("token")?.value ||
-                cookieStore.get("accessToken")?.value ||
-                cookieStore.get("__Secure-accessToken")?.value ||
-                sessionToken;
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/bookings/admin`, {
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiToken}`,
-                    "Cookie": cookieString,
-                    "Origin": appOrigin,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 cache: "no-store",
             });
@@ -124,10 +74,10 @@ export const BookingService = {
 
             const responseData = await res.json();
 
-            // Handle nested data structure
-            if (responseData.data && Array.isArray(responseData.data.data)) {
+            // Normalize response
+            if (responseData.success && responseData.data && responseData.data.data) {
                 return {
-                    success: responseData.success,
+                    success: true,
                     message: responseData.message,
                     data: responseData.data.data,
                     pagination: responseData.data.meta,

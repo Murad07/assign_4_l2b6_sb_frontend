@@ -182,7 +182,7 @@ async function ReviewList({ tutorId }: { tutorId: string }) {
         const res = await ReviewService.getTutorReviews(tutorId);
         reviews = res.data || [];
     } catch (e) {
-        console.error("Failed to fetch reviews");
+        console.error("Failed to fetch reviews", e);
     }
 
     if (reviews.length === 0) {

@@ -1,7 +1,7 @@
 import { ApiResponse, User } from "@/types";
 import { unstable_noStore as noStore } from "next/cache";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export const AdminService = {
     getAllUsers: async (): Promise<ApiResponse<User[]>> => {
@@ -9,15 +9,19 @@ export const AdminService = {
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: [] };
 
+            const decodedToken = decodeURIComponent(token);
+
             const res = await fetch(`${API_URL}/admin/users`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 cache: "no-store",
             });
@@ -26,8 +30,8 @@ export const AdminService = {
 
             const responseData = await res.json();
 
-            // Handle nested data structure from API
-            if (responseData.data && Array.isArray(responseData.data.data)) {
+            // Normalize response
+            if (responseData.success && responseData.data && responseData.data.data) {
                 const users = responseData.data.data.map((user: any) => ({
                     ...user,
                     isBlocked: user.status === "BANNED",
@@ -35,7 +39,7 @@ export const AdminService = {
                 }));
 
                 return {
-                    success: responseData.success,
+                    success: true,
                     message: responseData.message,
                     data: users,
                     pagination: responseData.data.meta,
@@ -53,17 +57,20 @@ export const AdminService = {
         try {
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/admin/users/${userId}/status`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 body: JSON.stringify({ status: isBlocked ? "BANNED" : "ACTIVE" }),
             });
@@ -79,17 +86,20 @@ export const AdminService = {
         try {
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/admin/users/${userId}/role`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 body: JSON.stringify({ role: role }),
             });
@@ -106,21 +116,37 @@ export const AdminService = {
             noStore();
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: [] };
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/tutor/admin/pending`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 cache: "no-store",
             });
 
             if (!res.ok) return { success: false, message: "Failed to fetch pending tutors", data: [] };
-            return res.json();
+
+            const responseData = await res.json();
+
+            // Normalize response
+            if (responseData.success && responseData.data && responseData.data.data) {
+                return {
+                    success: true,
+                    message: responseData.message,
+                    data: responseData.data.data,
+                    pagination: responseData.data.meta,
+                };
+            }
+
+            return responseData;
         } catch (e) {
             return { success: false, message: "Internal Error", data: [] };
         }
@@ -130,17 +156,20 @@ export const AdminService = {
         try {
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/approve`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
                 body: JSON.stringify({ isApproved: true }),
             });
@@ -148,9 +177,6 @@ export const AdminService = {
             const data = await res.json();
             if (!res.ok) {
                 return { success: false, message: data.message || "Failed to approve tutor", data: null as any };
-            }
-            if (data.success === undefined) {
-                return { success: true, message: "Tutor approved successfully", data: data };
             }
             return data;
         } catch (error: any) {
@@ -162,26 +188,26 @@ export const AdminService = {
         try {
             const { cookies } = await import("next/headers");
             const cookieStore = await cookies();
-            const tokenCookie = cookieStore.get("better-auth.session_token");
+            const tokenCookie =
+                cookieStore.get("better-auth.session_token") ||
+                cookieStore.get("__Secure-better-auth.session_token");
             const token = tokenCookie?.value;
 
             if (!token) return { success: false, message: "Unauthorized", data: null as any };
+            const decodedToken = decodeURIComponent(token);
 
             const res = await fetch(`${API_URL}/tutor/admin/${tutorId}/reject`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                    Cookie: `${tokenCookie?.name}=${token}`,
+                    "Authorization": `Bearer ${decodedToken}`,
+                    "Cookie": `better-auth.session_token=${decodedToken}; __Secure-better-auth.session_token=${decodedToken}`,
                 },
             });
 
             const data = await res.json();
             if (!res.ok) {
                 return { success: false, message: data.message || "Failed to reject tutor", data: null as any };
-            }
-            if (data.success === undefined) {
-                return { success: true, message: "Tutor rejected successfully", data: data };
             }
             return data;
         } catch (error: any) {

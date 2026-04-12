@@ -11,17 +11,14 @@ export default function AuthBridgePage() {
     useEffect(() => {
         const bridge = async () => {
             try {
-                // ✅ Get token from URL — backend appended it after Google OAuth
                 const params = new URLSearchParams(window.location.search);
                 const token = params.get("token");
 
                 if (!token) {
-                    console.error("Bridge: no token in URL");
                     router.push("/login?error=no_token");
                     return;
                 }
 
-                // ✅ Validate token and get user info via our Next.js API route
                 const res = await fetch(`/api/auth/session?token=${token}`, {
                     cache: "no-store",
                 });
@@ -34,16 +31,19 @@ export default function AuthBridgePage() {
                     return;
                 }
 
-                // ✅ Store as httpOnly cookie via server action
+                // ✅ Use the token returned by the API (already properly decoded)
+                // not the raw URL param which may be encoded differently
                 await syncSessionToken({
-                    "better-auth.session_token": token,
+                    "better-auth.session_token": data.token,
                 });
 
                 toast.success("Login successful!");
 
                 const role = data.user?.role || "Student";
-                router.push(role === "Tutor" ? "/tutor/dashboard" : "/dashboard");
-                router.refresh();
+
+                // ✅ Full page reload instead of router.push — prevents stale
+                // middleware cache from rejecting the fresh cookie
+                window.location.href = role === "Tutor" ? "/tutor/dashboard" : "/dashboard";
 
             } catch (error) {
                 console.error("Bridge failure:", error);

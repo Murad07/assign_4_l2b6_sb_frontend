@@ -1,111 +1,123 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://assign-4-l2-b6-skill-bridge-backend.vercel.app/api";
 
 export async function updateTutorProfile(data: any) {
     try {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        const headerList = await headers();
+        const host = headerList.get("host") || "";
+        const protocol = host.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
 
-        if (!token) {
-            return { success: false, error: "Unauthorized" };
-        }
+        const cookieStore = await cookies();
+        const tokenCookie =
+            cookieStore.get("better-auth.session_token") ||
+            cookieStore.get("__Secure-better-auth.session_token");
+
+        const token = tokenCookie?.value;
+        if (!token) return { success: false, error: "Unauthorized" };
 
         const res = await fetch(`${API_URL}/tutor/profile`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": process.env.API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
-                Cookie: `${tokenCookie?.name}=${token}`,
+                "Origin": appOrigin,
+                "Authorization": `Bearer ${token}`,
+                "Cookie": `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify(data),
         });
 
         const result = await res.json();
-
         if (!res.ok) {
             return {
                 success: false,
-                error: result.message || "Failed to update tutor profile",
+                error: result.message || result.error || "Failed to update profile",
             };
         }
 
         revalidatePath("/tutor/profile");
-        revalidatePath("/tutors", "page"); // Revalidate listing
+        revalidatePath("/", "layout");
         return { success: true, data: result };
     } catch (error: any) {
-        return {
-            success: false,
-            error: error.message || "Something went wrong",
-        };
+        console.error("Update Tutor Profile Error:", error);
+        return { success: false, error: error.message || "An unexpected error occurred" };
     }
 }
 
 export async function createTutorProfile(data: any) {
     try {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        const headerList = await headers();
+        const host = headerList.get("host") || "";
+        const protocol = host.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
 
-        if (!token) {
-            return { success: false, error: "Unauthorized" };
-        }
+        const cookieStore = await cookies();
+        const tokenCookie =
+            cookieStore.get("better-auth.session_token") ||
+            cookieStore.get("__Secure-better-auth.session_token");
+
+        const token = tokenCookie?.value;
+        if (!token) return { success: false, error: "Unauthorized" };
 
         const res = await fetch(`${API_URL}/tutor/profile`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": process.env.API_URL || "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
-                Cookie: `${tokenCookie?.name}=${token}`,
+                "Origin": appOrigin,
+                "Authorization": `Bearer ${token}`,
+                "Cookie": `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify(data),
         });
 
         const result = await res.json();
-
         if (!res.ok) {
             return {
                 success: false,
-                error: result.message || "Failed to create tutor profile",
+                error: result.message || result.error || "Failed to create profile",
             };
         }
 
         revalidatePath("/tutor/profile");
+        revalidatePath("/", "layout");
         return { success: true, data: result };
     } catch (error: any) {
-        return {
-            success: false,
-            error: error.message || "Something went wrong",
-        };
+        console.error("Create Tutor Profile Error:", error);
+        return { success: false, error: error.message || "An unexpected error occurred" };
     }
 }
 
 export async function updateAvailability(availability: any[]) {
     try {
-        const cookieStore = await cookies();
-        const tokenCookie = cookieStore.get("better-auth.session_token");
-        const token = tokenCookie?.value;
+        const headerList = await headers();
+        const host = headerList.get("host") || "";
+        const protocol = host.includes("localhost") ? "http" : "https";
+        const appOrigin = `${protocol}://${host}`;
 
-        if (!token) {
-            return { success: false, error: "Unauthorized" };
-        }
+        const cookieStore = await cookies();
+        const tokenCookie =
+            cookieStore.get("better-auth.session_token") ||
+            cookieStore.get("__Secure-better-auth.session_token");
+
+        const token = tokenCookie?.value;
+        if (!token) return { success: false, error: "Unauthorized" };
 
         const res = await fetch(`${API_URL}/tutor/availability`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Origin": "http://assign-4-l2-b6-skill-bridge-backend.vercel.app",
-                Cookie: `${tokenCookie?.name}=${token}`,
+                "Origin": appOrigin,
+                "Authorization": `Bearer ${token}`,
+                "Cookie": `${tokenCookie?.name}=${token}`,
             },
             body: JSON.stringify({ availability }),
         });
 
         const result = await res.json();
-
         if (!res.ok) {
             return {
                 success: false,
@@ -113,13 +125,11 @@ export async function updateAvailability(availability: any[]) {
             };
         }
 
-        revalidatePath("/tutor/profile"); // Assuming this is where it's shown
+        revalidatePath("/tutor/profile");
         return { success: true, data: result };
     } catch (error: any) {
-        return {
-            success: false,
-            error: error.message || "Something went wrong",
-        };
+        console.error("Update Availability Error:", error);
+        return { success: false, error: error.message || "An unexpected error occurred" };
     }
 }
 

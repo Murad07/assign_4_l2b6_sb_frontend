@@ -59,7 +59,7 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
         resolver: zodResolver(formSchema),
         defaultValues: {
             bio: tutor?.bio || "",
-            expertise: tutor?.expertise?.join(", ") || "",
+            expertise: Array.isArray(tutor?.expertise) ? tutor.expertise.join(", ") : "",
             hourlyRate: tutor?.hourlyRate || 0,
             education: tutor?.education || "",
             experience: tutor?.experience || "",
@@ -72,8 +72,13 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
             // Transform expertise string to array
             const formattedValues = {
                 ...values,
-                expertise: values.expertise.split(",").map(s => s.trim()).filter(Boolean),
+                expertise: values.expertise
+                    .split(",")
+                    .map(s => s.trim())
+                    .filter(s => s.length > 0),
             };
+
+            console.log("Submitting Tutor Profile:", formattedValues);
 
             let res;
             if (tutor) {
@@ -88,8 +93,9 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
             } else {
                 toast.error(res.error);
             }
-        } catch (error) {
-            toast.error("Something went wrong.");
+        } catch (error: any) {
+            console.error("Profile Submit Error:", error);
+            toast.error(error.message || "Something went wrong during submission.");
         }
     }
 
@@ -221,7 +227,10 @@ export default function TutorProfileForm({ tutor, categories }: TutorProfileForm
                                                 type="number"
                                                 placeholder="25"
                                                 {...field}
-                                                onChange={e => field.onChange(parseFloat(e.target.value))}
+                                                onChange={e => {
+                                                    const val = parseFloat(e.target.value);
+                                                    field.onChange(isNaN(val) ? 0 : val);
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />

@@ -193,6 +193,9 @@ export async function logoutUser() {
         const authCookies = [
             "better-auth.session_token",
             "__Secure-better-auth.session_token",
+            "better-auth.state",
+            "better-auth.pkce_verifier",
+            "better-auth.callback_url",
             "accessToken",
             "refreshToken",
             "__Secure-accessToken",
@@ -200,7 +203,9 @@ export async function logoutUser() {
         ];
 
         for (const name of authCookies) {
-            cookieStore.set(name, "", { path: "/", maxAge: 0, expires: new Date(0) });
+            cookieStore.set(name, "", { path: "/", maxAge: -1, expires: new Date(0) });
+            // Also try to clear them without path specifically just in case
+            cookieStore.set(name, "", { maxAge: -1, expires: new Date(0) });
         }
     } catch (e) {
         // Silently fail during build if analyzed

@@ -46,8 +46,6 @@ export default function StudentProfileForm({ user }: StudentProfileFormProps) {
         try {
             const formattedValues = {
                 ...values,
-                phone: values.phone === "" ? undefined : values.phone,
-                image: values.image === "" ? undefined : values.image,
             };
             console.log("Student profile update request data:", formattedValues);
             const res = await updateStudentProfile(formattedValues);

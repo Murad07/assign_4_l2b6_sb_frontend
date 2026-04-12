@@ -6,6 +6,19 @@ SkillBridge is a comprehensive full-stack web application designed to bridge the
 
 ---
 
+## 📸 Visual Preview
+
+### 🏠 Landing Page (Hero)
+![Hero Section](./hero.png)
+
+### 👨‍🏫 Tutor Card
+![Tutor Card](./tutor_card.png)
+
+### 📊 Dashboard Overview
+![Dashboard](./dashboard.png)
+
+---
+
 ## 🔗 Important Links
 
 - **🌐 Live Site URL:** [https://assign-4-l2b6-sb-frontend.vercel.app/](https://assign-4-l2b6-sb-frontend.vercel.app/)
@@ -50,11 +63,11 @@ To access the Admin Dashboard features:
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js, React, Tailwind CSS
-- **Backend:** Node.js, Express (implied)
-- **Database:** MongoDB / PostgreSQL (implied)
-- **Authentication:** Custom / Better-Auth (implied)
-- **Deployment:** Vercel
+- **Frontend:** Next.js 15+, React, Tailwind CSS, Lucide React, Sonner
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:** Better-Auth (Supports Email & Google OAuth)
+- **Deployment:** Vercel (Frontend & Backend)
 
 ---
 
@@ -84,4 +97,3 @@ To access the Admin Dashboard features:
    ```bash
    npm run build
    ```
-test changes

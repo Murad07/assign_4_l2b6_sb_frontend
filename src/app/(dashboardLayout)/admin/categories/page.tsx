@@ -1,19 +1,9 @@
-export const dynamic = "force-dynamic";
-
 import { CategoryService } from "@/services/category.service";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CategoryDialog from "@/components/modules/admin/category/CategoryDialog";
-import CategoryItemActions from "@/components/modules/admin/category/CategoryItemActions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // Using Avatar for icon display if it's an image URL
+import CategoryDataTable from "@/components/modules/admin/category/CategoryDataTable";
+
+export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
     let categories: any[] = [];
@@ -26,52 +16,31 @@ export default async function CategoriesPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold tracking-tight">Category Management</h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-3xl font-black tracking-tighter sm:text-4xl text-primary">
+                        Category Management
+                    </h1>
+                    <p className="text-muted-foreground text-sm font-medium">
+                        Define and organize tutoring domains and subjects.
+                    </p>
+                </div>
                 <CategoryDialog />
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Categories ({categories.length})</CardTitle>
+            <Card className="rounded-[2.5rem] border-primary/5 bg-background/50 backdrop-blur-sm overflow-hidden shadow-2xl shadow-primary/5">
+                <CardHeader className="bg-primary/5 border-b border-primary/5 py-8">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-xl font-black tracking-tighter">
+                            Active Taxonomies
+                            <span className="ml-3 text-xs font-black uppercase bg-primary text-white px-3 py-1 rounded-full">
+                                {categories.length} Total
+                            </span>
+                        </CardTitle>
+                    </div>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[80px]">Icon</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Description</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {categories.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                                        No categories found.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                categories.map((category: any) => (
-                                    <TableRow key={category.id}>
-                                        <TableCell>
-                                            {/* If icon is an image URL */}
-                                            <Avatar className="h-9 w-9 bg-muted">
-                                                <AvatarImage src={category.icon} alt={category.name} />
-                                                <AvatarFallback>{category.name?.[0]?.toUpperCase()}</AvatarFallback>
-                                            </Avatar>
-                                        </TableCell>
-                                        <TableCell className="font-medium">{category.name}</TableCell>
-                                        <TableCell className="text-muted-foreground">{category.description}</TableCell>
-                                        <TableCell className="text-right">
-                                            <CategoryItemActions category={category} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                <CardContent className="p-6">
+                    <CategoryDataTable categories={categories} />
                 </CardContent>
             </Card>
         </div>
